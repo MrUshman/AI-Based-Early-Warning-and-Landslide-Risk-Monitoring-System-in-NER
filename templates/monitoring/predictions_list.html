@@ -1,0 +1,89 @@
+{% extends 'monitoring/base.html' %}
+
+{% block title %}Explainable Risk Predictions Audit Log | NER-LEWS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-3">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1 text-dark">
+                <i class="bi bi-cpu text-primary me-2"></i>Explainable AI Predictions Audit Log
+            </h1>
+            <p class="text-muted mb-0">
+                Complete verifiable record of all hazard evaluations calculated by the weighted engine across the North Eastern Region.
+            </p>
+        </div>
+        <a href="{% url 'reading_add' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> Add Reading
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm bg-white">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date & Time (IST)</th>
+                        <th>Location & State</th>
+                        <th>Factor Breakdown (/40, /25, /20, /15)</th>
+                        <th>Total Score</th>
+                        <th>Risk Level</th>
+                        <th>Recorded By</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in predictions %}
+                    <tr>
+                        <td>
+                            <strong>{{ p.predicted_at|date:"d M Y" }}</strong>
+                            <div class="text-muted small">{{ p.predicted_at|date:"H:i:s" }} IST</div>
+                        </td>
+                        <td>
+                            <a href="{% url 'location_detail' p.location.pk %}" class="fw-bold text-dark text-decoration-none">
+                                {{ p.location.name }}
+                            </a>
+                            <div class="text-muted small">{{ p.location.district }}, {{ p.location.state }}</div>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2 flex-wrap small">
+                                <span class="badge bg-primary text-white" title="Rainfall Score">Rain: {{ p.rainfall_score|floatformat:1 }}/40</span>
+                                <span class="badge bg-info text-dark" title="Soil Moisture Score">Soil: {{ p.soil_score|floatformat:1 }}/25</span>
+                                <span class="badge bg-warning text-dark" title="Slope Angle Score">Slope: {{ p.slope_score|floatformat:1 }}/20</span>
+                                <span class="badge bg-secondary text-white" title="Vibration Score">Vib: {{ p.vibration_score|floatformat:1 }}/15</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="fs-5 fw-bold">{{ p.total_score|floatformat:1 }}</span>
+                            <span class="text-muted small">/100</span>
+                        </td>
+                        <td>
+                            <span class="badge-risk {{ p.badge_css }}">
+                                <i class="bi {{ p.icon_class }}"></i>
+                                {{ p.risk_level }}
+                            </span>
+                        </td>
+                        <td class="small text-muted">
+                            <i class="bi bi-person"></i> {{ p.reading.recorded_by.username|default:"System Telemetry" }}
+                        </td>
+                        <td>
+                            <a href="{% url 'location_detail' p.location.pk %}" class="btn btn-sm btn-outline-primary py-0">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            No risk predictions found in the database.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,199 @@
+/* Custom CSS for AI-Based Early Warning and Landslide Risk Monitoring System in NER */
+
+:root {
+    --color-low: #16A34A;
+    --color-moderate: #CA8A04;
+    --color-high: #EA580C;
+    --color-critical: #DC2626;
+    --color-portal-navy: #0F172A;
+    --color-portal-blue: #0284C7;
+    --color-portal-light: #F8FAFC;
+    --color-border: #E2E8F0;
+}
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #F1F5F9;
+    color: #1E293B;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+/* Accessible Risk Badges and Colors (Page 13) */
+.bg-low {
+    background-color: var(--color-low) !important;
+    color: #FFFFFF !important;
+}
+.bg-moderate {
+    background-color: var(--color-moderate) !important;
+    color: #FFFFFF !important;
+}
+.bg-high {
+    background-color: var(--color-high) !important;
+    color: #FFFFFF !important;
+}
+.bg-critical {
+    background-color: var(--color-critical) !important;
+    color: #FFFFFF !important;
+}
+
+.border-low { border-color: var(--color-low) !important; }
+.border-moderate { border-color: var(--color-moderate) !important; }
+.border-high { border-color: var(--color-high) !important; }
+.border-critical { border-color: var(--color-critical) !important; }
+
+.text-low { color: var(--color-low) !important; }
+.text-moderate { color: var(--color-moderate) !important; }
+.text-high { color: var(--color-high) !important; }
+.text-critical { color: var(--color-critical) !important; }
+
+/* Government Header Bar */
+.gov-topbar {
+    background-color: #0B1329;
+    color: #94A3B8;
+    font-size: 0.85rem;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.badge-risk {
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.45rem 0.75rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.badge-risk-lg {
+    font-size: 1.15rem;
+    font-weight: 800;
+    padding: 0.65rem 1.25rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* Card Styling */
+.card-stat {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.card-location {
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    transition: all 0.2s ease;
+}
+
+.card-location:hover {
+    border-color: #CBD5E1;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress bar explainability */
+.progress {
+    height: 10px;
+    border-radius: 6px;
+    background-color: #E2E8F0;
+}
+
+.progress-lg {
+    height: 14px;
+    border-radius: 8px;
+}
+
+/* Emergency Helpline Strip */
+.emergency-strip {
+    background: linear-gradient(90deg, #991B1B 0%, #DC2626 100%);
+    color: white;
+    font-weight: 600;
+    padding: 8px 0;
+}
+
+/* Mobile tap target compliance (>44px) */
+.btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+.btn-sm {
+    min-height: 36px;
+}
+
+.form-control, .form-select {
+    min-height: 44px;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+/* Map Containers */
+#ner-map {
+    height: 480px;
+    width: 100%;
+    border-radius: 12px;
+    z-index: 1;
+}
+
+#location-mini-map {
+    height: 280px;
+    width: 100%;
+    border-radius: 12px;
+    z-index: 1;
+}
+
+/* Custom Marker Pulsing for Critical Alerts */
+.critical-pulse-marker {
+    animation: pulse-ring 1.8s infinite;
+}
+
+@keyframes pulse-ring {
+    0% { transform: scale(0.95); opacity: 0.9; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.9; }
+}
+
+/* Footer */
+footer {
+    background-color: #0F172A;
+    color: #94A3B8;
+    margin-top: auto;
+}
+
+footer a {
+    color: #CBD5E1;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+}

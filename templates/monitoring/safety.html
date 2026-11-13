@@ -1,0 +1,92 @@
+{% extends 'monitoring/base.html' %}
+
+{% block title %}Public Safety Guidance & Emergency Advisory | NER-LEWS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-3">
+
+    <!-- Emergency Helpline Banner -->
+    <div class="card border-0 bg-danger text-white p-4 mb-4 shadow-sm">
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-md-8">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-white text-danger fw-bold px-2 py-1">IMMEDIATE EMERGENCY</span>
+                    <span class="text-white-75">All-India Disaster Emergency Helpline</span>
+                </div>
+                <h2 class="display-6 fw-bold mb-1">In Case of Landslide or Road Collapse, Dial 112</h2>
+                <p class="mb-0 text-white-75">
+                    Connect immediately with State Disaster Response Forces (SDRF), Police, and District Emergency Operations Centres (DEOC).
+                </p>
+            </div>
+            <div class="col-12 col-md-4 text-md-end">
+                <a href="tel:112" class="btn btn-light text-danger fw-bold btn-lg px-4 py-3 shadow">
+                    <i class="bi bi-telephone-fill me-2 fs-5"></i> Call 112 Now
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3 Simple Safety Sections (Page 15 Wireframe) -->
+    <div class="row g-4 mb-4">
+        <!-- 1. Before Travelling -->
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-white h-100 p-4">
+                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle d-inline-flex mb-3" style="width: 54px; height: 54px; align-items: center; justify-content: center;">
+                    <i class="bi bi-car-front-fill fs-3"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-3">1. Before Travelling in the Hills</h4>
+                <ul class="list-unstyled text-dark" style="line-height: 1.8;">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Check this portal:</strong> Confirm current risk status of your highway corridor (NH-10, NH-6, NH-29, etc.).</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Avoid night travel:</strong> Never drive on hilly highways at night during heavy monsoon downpours when slopes cannot be seen.</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Pack essentials:</strong> Keep extra drinking water, dry food, torch, and power bank in your vehicle.</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Listen to local advisories:</strong> Respect police barricades and BRO traffic restrictions without arguing.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 2. Warning Signs -->
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-white h-100 p-4">
+                <div class="bg-warning bg-opacity-10 text-warning-emphasis p-3 rounded-circle d-inline-flex mb-3" style="width: 54px; height: 54px; align-items: center; justify-content: center;">
+                    <i class="bi bi-eye-fill fs-3 text-warning"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-3">2. Slope Failure Warning Signs</h4>
+                <ul class="list-unstyled text-dark" style="line-height: 1.8;">
+                    <li class="mb-2"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i><strong>Road or ground cracks:</strong> New tension cracks appearing on the asphalt surface or hillside cut.</li>
+                    <li class="mb-2"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i><strong>Falling pebbles or stones:</strong> Sudden trickling of small stones is often the earliest signal of a major slide.</li>
+                    <li class="mb-2"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i><strong>Sudden muddy water:</strong> Clear mountain streams or roadside drains turning suddenly muddy or brown.</li>
+                    <li class="mb-2"><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i><strong>Tilting trees & poles:</strong> Trees, utility poles, or retaining walls leaning downhill.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 3. If a Slide Occurs -->
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm bg-white h-100 p-4">
+                <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-circle d-inline-flex mb-3" style="width: 54px; height: 54px; align-items: center; justify-content: center;">
+                    <i class="bi bi-exclamation-octagon-fill fs-3"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-3">3. If a Landslide Occurs</h4>
+                <ul class="list-unstyled text-dark" style="line-height: 1.8;">
+                    <li class="mb-2"><i class="bi bi-x-circle-fill text-danger me-2"></i><strong>Do NOT cross debris:</strong> Never attempt to drive or walk across freshly deposited mud; secondary slides follow quickly.</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Move away from slope:</strong> Move quickly away from the path of debris to an open, stable ridge.</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Warn other motorists:</strong> Switch on vehicle hazard lights and signal oncoming vehicles to halt at safe distance.</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Call 112 immediately:</strong> Report your highway milestone and whether any vehicles are trapped.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Public Guidance Notice -->
+    <div class="card border-0 shadow-sm bg-white p-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-info-circle-fill text-primary me-2"></i>Special Monsoon Advisory for the North Eastern Region</h5>
+        <p class="text-muted mb-2">
+            The North Eastern Region experiences intense monsoon spells from June to September. Heavy rainfall exceeding 100mm in 24 hours creates immense pore-water pressure inside Himalayan weathered schists and shales.
+        </p>
+        <p class="text-muted mb-0">
+            For real-time updates during extreme weather events, tune into local All India Radio broadcasts, follow state DDMA notifications on Twitter/X, and refer to this early warning portal for updated slope risk scores.
+        </p>
+    </div>
+
+</div>
+{% endblock %}

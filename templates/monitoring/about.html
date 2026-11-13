@@ -1,0 +1,155 @@
+{% extends 'monitoring/base.html' %}
+
+{% block title %}Agency Architecture & Operational Workflow | NER-LEWS{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-3">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1 text-dark">
+                <i class="bi bi-diagram-3-fill text-primary me-2"></i>Multi-Agency Coordination & Workflow Architecture
+            </h1>
+            <p class="text-muted mb-0">
+                How the early warning software bridges geotechnical data with India's disaster management command chain.
+            </p>
+        </div>
+    </div>
+
+    <!-- Agency Framework Table (Page 17 of Project Plan) -->
+    <div class="card border-0 shadow-sm bg-white mb-4">
+        <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-building text-primary me-2"></i>Institutional Roles in India's Landslide Disaster Response
+            </h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 220px;">Agency</th>
+                        <th style="width: 280px;">Real-World Mandate in India</th>
+                        <th>How This Early Warning System Supports It</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong class="text-dark">IMD</strong>
+                            <div class="text-muted small">India Meteorological Department</div>
+                        </td>
+                        <td>Official weather forecasts, heavy rainfall telemetry, and cloudburst bulletins.</td>
+                        <td>
+                            In V1, rainfall observations are entered by field personnel informed by IMD rain telemetry. In future iterations, automated IMD API ingestion directly supplies live rainfall values.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong class="text-dark">GSI</strong>
+                            <div class="text-muted small">Geological Survey of India</div>
+                        </td>
+                        <td>National nodal agency for landslide hazard zonation and slope stability studies.</td>
+                        <td>
+                            Locations, slope angles, and lithological data follow GSI baseline classifications. The historical incident repository archives ground failure data for post-monsoon geotechnical calibration.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong class="text-dark">NDMA / SDMA / DDMA</strong>
+                            <div class="text-muted small">Disaster Management Authorities</div>
+                        </td>
+                        <td>Statutory bodies directing disaster risk reduction, district coordination, and emergency response.</td>
+                        <td>
+                            <strong>Core system user role:</strong> District Disaster Management Authority (DDMA) officers receive instant alerts, confirm audit-stamped acknowledgement, and document ground actions before resolution.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong class="text-dark">NDRF / SDRF</strong>
+                            <div class="text-muted small">National & State Disaster Response Forces</div>
+                        </td>
+                        <td>Specialized paramilitary search, rescue, and community evacuation operations.</td>
+                        <td>
+                            Critical alerts provide preemptive geographic coordinates, enabling NDRF battalions to preposition swift-water and rubble-clearing search teams hours before catastrophic failure occurs.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong class="text-dark">BRO / NHIDCL</strong>
+                            <div class="text-muted small">Border Roads Organisation & NHIDCL</div>
+                        </td>
+                        <td>Construction and maintenance of strategic Himalayan and border national highways.</td>
+                        <td>
+                            Highway sectors (NH-10, NH-6, NH-29, NH-415) and road blockage status connect directly to heavy plant (excavators, bulldozers) mobilization and traffic closure decisions.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- The 5-Step Alert Lifecycle (Page 17) -->
+    <div class="card border-0 shadow-sm bg-white p-4 mb-4">
+        <h5 class="fw-bold text-dark mb-4"><i class="bi bi-arrow-repeat text-primary me-2"></i>The End-to-End Early Warning Alert Lifecycle</h5>
+
+        <div class="row g-3">
+            <div class="col-12 col-md">
+                <div class="p-3 bg-light rounded-3 border h-100">
+                    <span class="badge bg-primary mb-2">Step 1: DETECT</span>
+                    <h6 class="fw-bold text-dark mb-1">Observation Input</h6>
+                    <p class="small text-muted mb-0">Field officers enter rainfall, soil saturation, and ground vibration measurements.</p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md">
+                <div class="p-3 bg-light rounded-3 border h-100">
+                    <span class="badge bg-danger mb-2">Step 2: RAISE</span>
+                    <h6 class="fw-bold text-dark mb-1">Explainable Scoring</h6>
+                    <p class="small text-muted mb-0">Score &ge; 50/100 triggers an instant automated alert with plain-language action guidance.</p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md">
+                <div class="p-3 bg-light rounded-3 border h-100">
+                    <span class="badge bg-warning text-dark mb-2">Step 3: ACKNOWLEDGE</span>
+                    <h6 class="fw-bold text-dark mb-1">DDMA Confirmation</h6>
+                    <p class="small text-muted mb-0">District officer confirms receipt with an audit timestamp and initial response directives.</p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md">
+                <div class="p-3 bg-light rounded-3 border h-100">
+                    <span class="badge bg-dark mb-2">Step 4: ACT</span>
+                    <h6 class="fw-bold text-dark mb-1">Ground Interventions</h6>
+                    <p class="small text-muted mb-0">BRO initiates traffic control, police deploy barricades, and SDRF is placed on standby.</p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md">
+                <div class="p-3 bg-light rounded-3 border h-100">
+                    <span class="badge bg-success mb-2">Step 5: CLOSE</span>
+                    <h6 class="fw-bold text-dark mb-1">Resolution & Archive</h6>
+                    <p class="small text-muted mb-0">Once risk subsides or debris is cleared, officer closes the alert; full history is preserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Academic Viva & Scope Honesty Box (Page 1 & 20) -->
+    <div class="card border-0 bg-primary-subtle text-primary-emphasis p-4">
+        <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-award-fill fs-2 text-primary"></i>
+            <div>
+                <h5 class="fw-bold mb-1">Academic Viva & Evaluation Readiness</h5>
+                <p class="small mb-2">
+                    <strong>Why Explainable Scoring instead of opaque Deep Learning?</strong> In public safety and disaster administration, civil authorities cannot justify shutting down a national lifeline highway or evacuating a settlement on a black-box model. Every score in this system can be verified with pen and paper by a district collector or viva examiner.
+                </p>
+                <p class="small mb-0">
+                    <strong>Version 1 Honesty:</strong> Uses seeded and manual telemetry with an explainable 4-factor scoring engine. Automated IoT hardware feeds, IMD webhooks, and SMS/WhatsApp dissemination are documented future scope upgrades.
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

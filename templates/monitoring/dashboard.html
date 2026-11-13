@@ -1,0 +1,323 @@
+{% extends 'monitoring/base.html' %}
+
+{% block title %}Dashboard | AI-Based Landslide Risk Monitoring System in NER{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-4 py-3">
+
+    <!-- Hero Title & Context Banner -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-1 text-dark">
+                <i class="bi bi-activity text-primary me-2"></i>Real-Time Slope Risk Monitoring Dashboard
+            </h1>
+            <p class="text-muted mb-0">
+                Continuous hazard index across 12 designated landslide-prone slopes in the 8 North Eastern States of India.
+            </p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'locations_list' %}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-list-ul me-1"></i> View All 12 Slopes
+            </a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'reading_add' %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i> Record New Reading
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 4-Level Summary Strip (Page 14 Wireframe) -->
+    <div class="row g-3 mb-4">
+        <!-- Critical Counter -->
+        <div class="col-6 col-md-3">
+            <div class="card card-stat border-start border-4 border-critical p-3 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-uppercase text-danger fw-bold fs-7" style="letter-spacing: 0.05em;">Critical (75-100)</span>
+                        <h2 class="display-6 fw-bold text-critical my-1">{{ critical_count }}</h2>
+                        <small class="text-muted"><i class="bi bi-exclamation-octagon-fill text-danger me-1"></i>Immediate closure/action</small>
+                    </div>
+                    <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                        <i class="bi bi-exclamation-octagon-fill fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- High Counter -->
+        <div class="col-6 col-md-3">
+            <div class="card card-stat border-start border-4 border-high p-3 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-uppercase text-high fw-bold fs-7" style="letter-spacing: 0.05em;">High (50-74)</span>
+                        <h2 class="display-6 fw-bold text-high my-1">{{ high_count }}</h2>
+                        <small class="text-muted"><i class="bi bi-exclamation-triangle-fill text-high me-1"></i>Traffic warning & patrol</small>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 text-high p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                        <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moderate Counter -->
+        <div class="col-6 col-md-3">
+            <div class="card card-stat border-start border-4 border-moderate p-3 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-uppercase text-moderate fw-bold fs-7" style="letter-spacing: 0.05em;">Moderate (25-49)</span>
+                        <h2 class="display-6 fw-bold text-moderate my-1">{{ moderate_count }}</h2>
+                        <small class="text-muted"><i class="bi bi-eye-fill text-moderate me-1"></i>Increase reading cycle</small>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 text-moderate p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                        <i class="bi bi-eye-fill fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Low Counter -->
+        <div class="col-6 col-md-3">
+            <div class="card card-stat border-start border-4 border-low p-3 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-uppercase text-low fw-bold fs-7" style="letter-spacing: 0.05em;">Low (0-24)</span>
+                        <h2 class="display-6 fw-bold text-low my-1">{{ low_count }}</h2>
+                        <small class="text-muted"><i class="bi bi-check-circle-fill text-low me-1"></i>Normal routine monitoring</small>
+                    </div>
+                    <div class="bg-success bg-opacity-10 text-low p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                        <i class="bi bi-check-circle-fill fs-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Alerts Section (Top Placement for Safety, Page 14) -->
+    {% if active_alerts %}
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="fw-bold mb-0 text-danger">
+                <i class="bi bi-bell-fill me-2"></i>Active Hazard Alerts Requiring District Attention
+            </h5>
+            <a href="{% url 'alerts_list' %}" class="small text-danger fw-semibold">View All Alerts ({{ global_active_alerts_count }}) &rarr;</a>
+        </div>
+        <div class="row g-3">
+            {% for alert in active_alerts %}
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm border-start border-4 {% if alert.level == 'CRITICAL' %}border-critical bg-danger bg-opacity-10{% else %}border-high bg-warning bg-opacity-10{% endif %} p-3">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <div>
+                            <span class="badge-risk {% if alert.level == 'CRITICAL' %}bg-critical{% else %}bg-high{% endif %}">
+                                <i class="bi {% if alert.level == 'CRITICAL' %}bi-exclamation-octagon-fill{% else %}bi-exclamation-triangle-fill{% endif %}"></i>
+                                {{ alert.level }} ALERT &bull; {{ alert.prediction.total_score|floatformat:1 }}/100
+                            </span>
+                            <h5 class="fw-bold mt-2 mb-0 text-dark">{{ alert.location.name }}</h5>
+                            <small class="text-muted"><i class="bi bi-geo-alt"></i> {{ alert.location.district }}, {{ alert.location.state }}</small>
+                        </div>
+                        <span class="badge bg-white text-dark border">
+                            <i class="bi bi-clock me-1"></i>{{ alert.created_at|date:"d M, H:i" }} IST
+                        </span>
+                    </div>
+                    <p class="small text-dark mb-3">{{ alert.message }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small text-muted">
+                            Status: <strong class="text-uppercase {% if alert.status == 'ACKNOWLEDGED' %}text-primary{% else %}text-danger{% endif %}">{{ alert.status }}</strong>
+                            {% if alert.acknowledged_by %}by {{ alert.acknowledged_by.username }}{% endif %}
+                        </span>
+                        <a href="{% url 'alert_detail' alert.pk %}" class="btn btn-sm btn-outline-dark fw-semibold">
+                            Full Alert Action Dossier <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Interactive GIS Map Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-map-fill text-primary me-2"></i>North Eastern Region Slope Spatial Risk Map
+                </h5>
+                <small class="text-muted">Live geospatial status across Arunachal Pradesh, Assam, Manipur, Meghalaya, Mizoram, Nagaland, Sikkim & Tripura.</small>
+            </div>
+            <div class="d-flex align-items-center gap-2 small">
+                <span class="badge bg-critical"><i class="bi bi-circle-fill me-1"></i>Critical (75+)</span>
+                <span class="badge bg-high"><i class="bi bi-circle-fill me-1"></i>High (50-74)</span>
+                <span class="badge bg-moderate text-dark"><i class="bi bi-circle-fill me-1"></i>Moderate (25-49)</span>
+                <span class="badge bg-low"><i class="bi bi-circle-fill me-1"></i>Low (0-24)</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div id="ner-map"></div>
+        </div>
+        <div class="card-footer bg-light py-2 text-center small text-muted">
+            <i class="bi bi-info-circle me-1"></i> Click any slope marker on the map to view instant sensor parameters, explainable score breakdown, and access the full slope page.
+        </div>
+    </div>
+
+    <!-- Highest Risk Locations Grid (Page 14 Wireframe) -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h5 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-graph-up-arrow text-danger me-2"></i>Priority Monitored Slopes (Sorted by Risk Index)
+            </h5>
+            <small class="text-muted">Ranked strictly by the transparent 4-factor scoring algorithm.</small>
+        </div>
+        <a href="{% url 'locations_list' %}" class="btn btn-sm btn-outline-secondary">
+            View All 12 Slopes <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+
+    <div class="row g-3">
+        {% for loc in top_risk_locations %}
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="card card-location bg-white h-100 p-3">
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <div>
+                        <span class="badge-risk {{ loc.risk_badge_css }}">
+                            <i class="bi {{ loc.risk_icon }}"></i>
+                            {{ loc.current_risk_level }} &bull; {{ loc.current_risk_score|floatformat:1 }}/100
+                        </span>
+                        <h5 class="fw-bold mt-2 mb-1 text-dark">
+                            <a href="{% url 'location_detail' loc.pk %}" class="text-decoration-none text-dark hover-primary">
+                                {{ loc.name }}
+                            </a>
+                        </h5>
+                        <p class="small text-muted mb-0"><i class="bi bi-geo-alt"></i> {{ loc.district }}, <strong>{{ loc.state }}</strong></p>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-light text-secondary border">Slope: {{ loc.slope_angle|floatformat:0 }}°</span>
+                    </div>
+                </div>
+
+                <!-- Factor Breakdown Preview -->
+                {% with pred=loc.latest_prediction %}
+                {% if pred %}
+                <div class="bg-light p-2 rounded-3 my-2 small">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Rainfall (40):</span>
+                        <strong>{{ pred.rainfall_score|floatformat:1 }}/40</strong>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {% widthratio pred.rainfall_score 40 100 %}%;"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Soil Saturation (25):</span>
+                        <strong>{{ pred.soil_score|floatformat:1 }}/25</strong>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {% widthratio pred.soil_score 25 100 %}%;"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Slope Steepness (20):</span>
+                        <strong>{{ pred.slope_score|floatformat:1 }}/20</strong>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {% widthratio pred.slope_score 20 100 %}%;"></div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Ground Vibration (15):</span>
+                        <strong>{{ pred.vibration_score|floatformat:1 }}/15</strong>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-secondary" role="progressbar" style="width: {% widthratio pred.vibration_score 15 100 %}%;"></div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-light border my-2 py-2 small text-muted">
+                    No readings logged yet for this slope.
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <div class="mt-auto pt-2 d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="bi bi-clock"></i>
+                        {% if loc.latest_reading %}
+                            Updated {{ loc.latest_reading.recorded_at|date:"d M, H:i" }} IST
+                        {% else %}
+                            Awaiting initial reading
+                        {% endif %}
+                    </small>
+                    <a href="{% url 'location_detail' loc.pk %}" class="btn btn-sm btn-outline-primary">
+                        Dossier <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize Leaflet Map centered on North Eastern Region (approx lat 25.8, lng 93.0)
+        const map = L.map('ner-map').setView([25.85, 92.95], 7);
+
+        // OpenStreetMap Tile Layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 16,
+            attribution: '&copy; OpenStreetMap contributors | NER-LEWS'
+        }).addTo(map);
+
+        // Fetch location points from GeoJSON API
+        fetch("{% url 'api_locations_geojson' %}")
+            .then(res => res.json())
+            .then(data => {
+                const markersGroup = L.featureGroup();
+
+                data.locations.forEach(loc => {
+                    const color = loc.color;
+
+                    // Custom Circle Marker with color code
+                    const marker = L.circleMarker([loc.latitude, loc.longitude], {
+                        radius: loc.risk_level === 'CRITICAL' ? 12 : 9,
+                        fillColor: color,
+                        color: '#FFFFFF',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.9
+                    });
+
+                    // Popup Content
+                    const popupContent = `
+                        <div style="min-width: 220px; font-family: system-ui, sans-serif;">
+                            <div style="background-color: ${color}; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; margin-bottom: 6px;">
+                                ${loc.risk_level} RISK &bull; Score: ${loc.risk_score.toFixed(1)}/100
+                            </div>
+                            <strong style="font-size: 14px; display: block; color: #0F172A;">${loc.name}</strong>
+                            <div style="font-size: 12px; color: #475569; margin: 3px 0;">
+                                <i class="bi bi-geo-alt"></i> ${loc.district}, ${loc.state}
+                            </div>
+                            <div style="font-size: 12px; color: #475569; margin-bottom: 8px;">
+                                <strong>Slope:</strong> ${loc.slope_angle}° &bull; <strong>Soil:</strong> ${loc.soil_type}
+                            </div>
+                            <a href="${loc.detail_url}" class="btn btn-sm btn-primary text-white text-decoration-none" style="display: block; text-align: center; padding: 4px 8px; font-size: 12px; border-radius: 4px;">
+                                Open Full Slope Dossier
+                            </a>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+                    marker.addTo(markersGroup);
+                });
+
+                markersGroup.addTo(map);
+                map.fitBounds(markersGroup.getBounds().pad(0.15));
+            })
+            .catch(err => console.error("Error loading GIS markers:", err));
+    });
+</script>
+{% endblock %}

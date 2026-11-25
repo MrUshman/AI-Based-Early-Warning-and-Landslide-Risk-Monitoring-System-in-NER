@@ -1,0 +1,109 @@
+{% extends "monitoring/base.html" %}
+{% block title %}Monitoring Stations Grid | Landslide EWS NER{% endblock %}
+{% block meta_description %}Geotechnical monitoring station grid spanning Arunachal Pradesh, Assam, Manipur, Meghalaya, Mizoram, Nagaland, Sikkim, and Tripura.{% endblock %}
+
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+  <div>
+    <h2 class="fw-bold mb-1 d-flex align-items-center">
+      <i class="bi bi-geo-alt-fill text-success me-2"></i>Monitoring Stations &amp; Corridors
+    </h2>
+    <p class="text-muted mb-0">Strategic telemetry stations installed along vulnerable National Highways and habitations across 8 NER states.</p>
+  </div>
+  {% if user.is_authenticated %}
+    <div class="mt-3 mt-md-0">
+      <a class="btn btn-success btn-sm rounded-3" href="{% url 'location_add' %}">
+        <i class="bi bi-plus-circle me-1"></i> Register New Station
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- State Filter Bar -->
+<div class="card card-modern p-3 mb-4">
+  <form class="d-flex flex-wrap gap-2 align-items-center" method="get">
+    <div class="input-group" style="max-width: 340px;">
+      <span class="input-group-text bg-white"><i class="bi bi-funnel"></i></span>
+      <select name="state" class="form-select border-start-0">
+        <option value="">All North-Eastern States (8)</option>
+        {% for value, label in states %}
+          <option value="{{ value }}" {% if selected_state == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn btn-outline-success">Filter Network</button>
+    {% if selected_state %}
+      <a href="{% url 'location_list' %}" class="btn btn-link text-muted btn-sm">Clear Filter</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Station Cards Grid -->
+<div class="row g-4">
+  {% for item in locations_data %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card card-modern h-100 p-4 d-flex flex-column justify-content-between">
+        <div>
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="fw-bold mb-0">
+              <a href="{% url 'location_detail' item.loc.pk %}" class="text-dark text-decoration-none">
+                {{ item.loc.name }}
+              </a>
+            </h5>
+            {% if item.pred %}
+              <span class="badge {% if item.pred.risk_level == 'Critical' %}badge-critical{% elif item.pred.risk_level == 'High' %}badge-high{% elif item.pred.risk_level == 'Moderate' %}badge-moderate{% else %}badge-low{% endif %}">
+                {{ item.pred.risk_level }}
+              </span>
+            {% else %}
+              <span class="badge bg-light text-muted border">No Data</span>
+            {% endif %}
+          </div>
+
+          <div class="text-muted small mb-3">
+            <i class="bi bi-geo me-1"></i>{{ item.loc.district }}, <span class="fw-semibold text-secondary">{{ item.loc.state }}</span>
+          </div>
+
+          <div class="row g-2 mb-3 small">
+            <div class="col-6">
+              <div class="border rounded p-2 bg-light">
+                <span class="text-muted d-block" style="font-size:0.75rem;">Slope Angle</span>
+                <b>{{ item.loc.slope_angle }}°</b>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="border rounded p-2 bg-light">
+                <span class="text-muted d-block" style="font-size:0.75rem;">Elevation</span>
+                <b>{{ item.loc.elevation_m }} m</b>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="border rounded p-2 bg-light">
+                <span class="text-muted d-block" style="font-size:0.75rem;">Geotechnical Soil Type</span>
+                <b>{{ item.loc.get_soil_type_display }}</b>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+          <small class="text-muted">
+            <i class="bi bi-pin me-1"></i>{{ item.loc.latitude|floatformat:2 }}, {{ item.loc.longitude|floatformat:2 }}
+          </small>
+          <a href="{% url 'location_detail' item.loc.pk %}" class="btn btn-outline-primary btn-sm rounded-3">
+            Inspect Station &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-12">
+      <div class="card card-modern p-5 text-center text-muted">
+        <i class="bi bi-search fs-1 d-block mb-3 text-secondary"></i>
+        <h5>No stations matched your criteria</h5>
+        <p class="small">Try resetting the state filter or seed demo data via terminal.</p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

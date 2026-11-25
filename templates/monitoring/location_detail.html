@@ -1,411 +1,288 @@
-{% extends 'monitoring/base.html' %}
+{% extends "monitoring/base.html" %}
+{% block title %}{{ location.name }} | Station Details &amp; Telemetry{% endblock %}
+{% block meta_description %}Real-time landslide susceptibility telemetry, live weather sync, and AI risk evaluation for {{ location.name }}, {{ location.district }}, {{ location.state }}.{% endblock %}
 
-{% block title %}{{ location.name }} | Slope Geotechnical Dossier{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-lg-4 py-3">
-
-    <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'locations_list' %}">12 Locations</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ location.name }}</li>
-        </ol>
-    </nav>
-
-    <!-- Location Header & Primary Risk Badge -->
-    <div class="card border-0 shadow-sm p-4 mb-4 bg-white">
-        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 fw-bold">
-                        {{ location.state }}
-                    </span>
-                    <span class="text-muted"><i class="bi bi-geo-alt-fill text-danger"></i> {{ location.district }} &bull; {{ location.nearest_town_or_road }}</span>
-                    <span class="text-muted"><i class="bi bi-compass"></i> Coordinates: {{ location.latitude|floatformat:4 }}° N, {{ location.longitude|floatformat:4 }}° E</span>
-                </div>
-                <h1 class="h2 fw-bold text-dark mb-1">{{ location.name }}</h1>
-                <p class="text-muted mb-0">{{ location.description }}</p>
-            </div>
-
-            <div class="d-flex flex-column align-items-end gap-2">
-                <span class="badge-risk-lg {{ location.risk_badge_css }}">
-                    <i class="bi {{ location.risk_icon }} fs-4"></i>
-                    <div>
-                        <div class="small fw-normal text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">Current Threat Level</div>
-                        <div>{{ location.current_risk_level }} &bull; {{ location.current_risk_score|floatformat:1 }}/100</div>
-                    </div>
-                </span>
-                {% if user.is_authenticated %}
-                <a href="{% url 'reading_add' %}?location={{ location.id }}" class="btn btn-warning btn-sm text-dark fw-bold px-3">
-                    <i class="bi bi-plus-circle-fill me-1"></i> Add Reading for this Slope
-                </a>
-                {% endif %}
-            </div>
-        </div>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+  <div>
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h2 class="fw-bold mb-0 text-dark">{{ location.name }}</h2>
+      <span class="badge bg-light text-dark border">{{ location.district }}, {{ location.state }}</span>
+      {% if location.is_active %}
+        <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-circle-fill me-1" style="font-size:0.55rem;"></i>Active Station</span>
+      {% else %}
+        <span class="badge bg-secondary">Inactive</span>
+      {% endif %}
     </div>
-
-    <!-- Explainable AI Factor Breakdown Section (Directly under score as required by plan) -->
-    <div class="card border-0 shadow-sm mb-4 bg-white">
-        <div class="card-header bg-white py-3 border-bottom">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <div>
-                    <h5 class="fw-bold mb-0 text-dark">
-                        <i class="bi bi-cpu-fill text-primary me-2"></i>Explainable AI Scoring Breakdown: Why This Risk Level?
-                    </h5>
-                    <small class="text-muted">Total Score = Rainfall (40) + Soil Moisture (25) + Slope Angle (20) + Vibration (15). Auditable by human examiners.</small>
-                </div>
-                {% if latest_pred %}
-                <span class="badge bg-light text-dark border">
-                    <i class="bi bi-clock me-1"></i>Calculated: {{ latest_pred.predicted_at|date:"d M Y, H:i" }} IST
-                </span>
-                {% endif %}
-            </div>
-        </div>
-        <div class="card-body p-4">
-            {% if latest_pred %}
-            <div class="row g-4 mb-4">
-                <!-- Factor 1: Rainfall -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="p-3 bg-light rounded-3 border h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-dark"><i class="bi bi-cloud-rain-heavy-fill text-primary me-1"></i> Rainfall Index</span>
-                            <span class="badge bg-primary text-white fs-6">{{ latest_pred.rainfall_score|floatformat:1 }} / 40</span>
-                        </div>
-                        <div class="progress progress-lg mb-2">
-                            <div class="progress-bar bg-primary" role="progressbar" style="width: {% widthratio latest_pred.rainfall_score 40 100 %}%;"></div>
-                        </div>
-                        <small class="text-muted d-block">
-                            {% if latest_reading %}
-                            Last 24h: <strong>{{ latest_reading.rainfall_24h_mm }} mm</strong> &bull; 72h: <strong>{{ latest_reading.rainfall_72h_mm }} mm</strong>
-                            {% else %}
-                            Precipitation component
-                            {% endif %}
-                        </small>
-                    </div>
-                </div>
-
-                <!-- Factor 2: Soil Moisture -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="p-3 bg-light rounded-3 border h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-dark"><i class="bi bi-moisture text-info me-1"></i> Soil Saturation</span>
-                            <span class="badge bg-info text-dark fs-6">{{ latest_pred.soil_score|floatformat:1 }} / 25</span>
-                        </div>
-                        <div class="progress progress-lg mb-2">
-                            <div class="progress-bar bg-info" role="progressbar" style="width: {% widthratio latest_pred.soil_score 25 100 %}%;"></div>
-                        </div>
-                        <small class="text-muted d-block">
-                            {% if latest_reading %}
-                            Saturation: <strong>{{ latest_reading.soil_moisture_percent }}%</strong> (High pore pressure threshold: 75%+)
-                            {% else %}
-                            Saturation component
-                            {% endif %}
-                        </small>
-                    </div>
-                </div>
-
-                <!-- Factor 3: Slope Angle -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="p-3 bg-light rounded-3 border h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-dark"><i class="bi bi-triangle-half text-warning me-1"></i> Slope Geometry</span>
-                            <span class="badge bg-warning text-dark fs-6">{{ latest_pred.slope_score|floatformat:1 }} / 20</span>
-                        </div>
-                        <div class="progress progress-lg mb-2">
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: {% widthratio latest_pred.slope_score 20 100 %}%;"></div>
-                        </div>
-                        <small class="text-muted d-block">
-                            Measured Slope: <strong>{{ location.slope_angle|floatformat:1 }}°</strong> &bull; Soil: {{ location.soil_type }}
-                        </small>
-                    </div>
-                </div>
-
-                <!-- Factor 4: Ground Vibration -->
-                <div class="col-12 col-md-6 col-xl-3">
-                    <div class="p-3 bg-light rounded-3 border h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="fw-bold text-dark"><i class="bi bi-broadcast text-secondary me-1"></i> Ground Vibration</span>
-                            <span class="badge bg-secondary text-white fs-6">{{ latest_pred.vibration_score|floatformat:1 }} / 15</span>
-                        </div>
-                        <div class="progress progress-lg mb-2">
-                            <div class="progress-bar bg-secondary" role="progressbar" style="width: {% widthratio latest_pred.vibration_score 15 100 %}%;"></div>
-                        </div>
-                        <small class="text-muted d-block">
-                            {% if latest_reading %}
-                            Peak velocity: <strong>{{ latest_reading.ground_vibration }} mm/s</strong> (Seismic / vehicular vibration)
-                            {% else %}
-                            Vibration component
-                            {% endif %}
-                        </small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recommendation Alert Box (Page 14 Wireframe) -->
-            <div class="card border-0 {% if latest_pred.risk_level == 'CRITICAL' %}bg-danger bg-opacity-10 border-start border-4 border-critical{% elif latest_pred.risk_level == 'HIGH' %}bg-warning bg-opacity-10 border-start border-4 border-high{% elif latest_pred.risk_level == 'MODERATE' %}bg-warning bg-opacity-10 border-start border-4 border-moderate{% else %}bg-success bg-opacity-10 border-start border-4 border-low{% endif %} p-3">
-                <div class="d-flex align-items-start gap-3">
-                    <div class="fs-3 {% if latest_pred.risk_level == 'CRITICAL' %}text-danger{% elif latest_pred.risk_level == 'HIGH' %}text-high{% elif latest_pred.risk_level == 'MODERATE' %}text-moderate{% else %}text-success{% endif %}">
-                        <i class="bi {{ latest_pred.icon_class }}"></i>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-1 text-dark">Actionable Operational Directive & Safety Recommendation</h6>
-                        <p class="mb-0 text-dark small" style="line-height: 1.5;">{{ latest_pred.recommendation }}</p>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-            <div class="alert alert-info mb-0">
-                <i class="bi bi-info-circle me-1"></i> No sensor reading has been recorded for this location yet. Click "Add Reading" above to trigger initial risk evaluation.
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Trend Chart & GIS Mini-Map Row -->
-    <div class="row g-4 mb-4">
-        <!-- Chart.js Historical Trend Line -->
-        <div class="col-12 col-lg-8">
-            <div class="card border-0 shadow-sm h-100 bg-white">
-                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0 text-dark">
-                        <i class="bi bi-graph-up text-primary me-2"></i>Hazard Score Trend Over Recent Observations
-                    </h5>
-                    <span class="badge bg-light text-muted border">Chart.js Visualization</span>
-                </div>
-                <div class="card-body p-3">
-                    <div style="height: 280px; position: relative;">
-                        <canvas id="trendChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mini GIS Map with slope marker -->
-        <div class="col-12 col-lg-4">
-            <div class="card border-0 shadow-sm h-100 bg-white">
-                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0 text-dark">
-                        <i class="bi bi-crosshair text-danger me-2"></i>Geographic Position
-                    </h5>
-                    <span class="small text-muted">{{ location.latitude|floatformat:2 }}°N, {{ location.longitude|floatformat:2 }}°E</span>
-                </div>
-                <div class="card-body p-0">
-                    <div id="location-mini-map"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Historical Data Tables: Readings, Alerts, Incidents -->
-    <div class="row g-4">
-        <!-- Recent Readings Table -->
-        <div class="col-12 col-lg-6">
-            <div class="card border-0 shadow-sm bg-white h-100">
-                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0 text-dark">
-                        <i class="bi bi-table text-primary me-2"></i>Recent Sensor Readings Log
-                    </h5>
-                    <span class="badge bg-light text-muted border">Last {{ recent_readings.count }} Entries</span>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 small">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Timestamp (IST)</th>
-                                <th>Rain (24h/72h)</th>
-                                <th>Soil Moisture</th>
-                                <th>Vibration</th>
-                                <th>Score / Level</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for r in recent_readings %}
-                            <tr>
-                                <td>
-                                    <strong>{{ r.recorded_at|date:"d M, H:i" }}</strong>
-                                    <div class="text-muted fs-8">{{ r.recorded_by.username|default:"System Seed" }}</div>
-                                </td>
-                                <td>{{ r.rainfall_24h_mm }} / {{ r.rainfall_72h_mm }} mm</td>
-                                <td>{{ r.soil_moisture_percent }}%</td>
-                                <td>{{ r.ground_vibration }} mm/s</td>
-                                <td>
-                                    {% if r.prediction %}
-                                    <span class="badge {{ r.prediction.badge_css }}">
-                                        {{ r.prediction.risk_level }} ({{ r.prediction.total_score|floatformat:0 }})
-                                    </span>
-                                    {% else %}
-                                    <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center py-4 text-muted">No historical readings recorded yet.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Alerts and Past Incidents Tables -->
-        <div class="col-12 col-lg-6">
-            <!-- Alerts Card -->
-            <div class="card border-0 shadow-sm bg-white mb-4">
-                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0 text-danger">
-                        <i class="bi bi-bell-fill me-2"></i>Alert History for this Slope
-                    </h5>
-                    <a href="{% url 'alerts_list' %}?state={{ location.state }}" class="small text-muted">All State Alerts</a>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 small">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Triggered (IST)</th>
-                                <th>Level</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for alert in alerts %}
-                            <tr>
-                                <td>{{ alert.created_at|date:"d M, H:i" }}</td>
-                                <td><span class="badge {{ alert.badge_css }}">{{ alert.level }}</span></td>
-                                <td>
-                                    <span class="badge {% if alert.status == 'ACTIVE' %}bg-danger{% elif alert.status == 'ACKNOWLEDGED' %}bg-primary{% else %}bg-secondary{% endif %}">
-                                        {{ alert.status }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <a href="{% url 'alert_detail' alert.pk %}" class="btn btn-sm btn-outline-dark py-0">View</a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center py-3 text-muted">No alerts raised for this location.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Past Incidents Card -->
-            <div class="card border-0 shadow-sm bg-white">
-                <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0 text-dark">
-                        <i class="bi bi-clock-history text-secondary me-2"></i>Recorded Ground Incidents
-                    </h5>
-                    <a href="{% url 'incidents_list' %}" class="small text-muted">Incident Log</a>
-                </div>
-                <div class="card-body p-3">
-                    {% for inc in incidents %}
-                    <div class="border-bottom pb-2 mb-2">
-                        <div class="d-flex justify-content-between">
-                            <strong class="text-danger">{{ inc.severity }} Incident</strong>
-                            <small class="text-muted">{{ inc.occurred_at|date:"d M Y" }}</small>
-                        </div>
-                        <p class="small text-muted mb-1">{{ inc.description }}</p>
-                        {% if inc.road_blocked %}
-                        <span class="badge bg-danger text-white fs-8"><i class="bi bi-slash-circle me-1"></i>Highway Blocked</span>
-                        {% endif %}
-                    </div>
-                    {% empty %}
-                    <p class="small text-muted mb-0 text-center py-2">No historical slide incidents on record for this sector.</p>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <p class="text-muted small mb-0">
+      <i class="bi bi-geo-alt me-1"></i>Lat: {{ location.latitude }}°N, Lon: {{ location.longitude }}°E ·
+      Elevation: <b>{{ location.elevation_m }} m</b> ·
+      Slope Angle: <b>{{ location.slope_angle }}°</b> ·
+      Geotechnical Soil: <b>{{ location.get_soil_type_display }}</b>
+    </p>
+  </div>
+  <div class="mt-3 mt-md-0 d-flex gap-2">
+    <a href="{% url 'fetch_live_weather' location.pk %}" class="btn btn-primary btn-sm rounded-3">
+      <i class="bi bi-cloud-arrow-down-fill me-1"></i> Sync Live Weather (Open-Meteo)
+    </a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'reading_add' %}?location={{ location.pk }}" class="btn btn-success btn-sm rounded-3">
+        <i class="bi bi-plus-circle me-1"></i> Log Observation
+      </a>
+    {% endif %}
+  </div>
 </div>
+
+<div class="row g-4 mb-4">
+  <!-- Station Map -->
+  <div class="col-lg-5">
+    <div class="card card-modern p-3 h-100">
+      <h6 class="fw-bold text-dark mb-2"><i class="bi bi-pin-map text-danger me-1"></i>Station GIS Coordinates</h6>
+      <div id="stationMap" style="height: 280px; border-radius: 8px;" class="border"></div>
+    </div>
+  </div>
+
+  <!-- Latest AI Risk Engine Assessment -->
+  <div class="col-lg-7">
+    <div class="card card-modern p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0 text-dark">
+          <i class="bi bi-cpu-fill text-primary me-2"></i>Machine Learning Hazard Diagnosis
+        </h5>
+        {% with p=location.latest_prediction %}
+          {% if p %}
+            <span class="badge {% if p.risk_level == 'Critical' %}badge-critical{% elif p.risk_level == 'High' %}badge-high{% elif p.risk_level == 'Moderate' %}badge-moderate{% else %}badge-low{% endif %} px-3 py-2 fs-6">
+              {{ p.risk_level }} Threat ({{ p.risk_score|floatformat:0 }}/100)
+            </span>
+          {% endif %}
+        {% endwith %}
+      </div>
+
+      {% with p=location.latest_prediction %}
+        {% if p %}
+          <div class="progress mb-3" style="height: 12px; border-radius: 6px;">
+            <div class="progress-bar {% if p.risk_level == 'Critical' %}bg-danger{% elif p.risk_level == 'High' %}bg-warning{% elif p.risk_level == 'Moderate' %}bg-info{% else %}bg-success{% endif %}"
+                 style="width: {{ p.risk_score }}%"></div>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6 col-sm-3">
+              <div class="p-2 border rounded bg-light">
+                <small class="text-muted d-block">Rainfall Factor</small>
+                <span class="fw-bold">{{ p.rainfall_factor }}</span> <small class="text-muted">/ 40</small>
+              </div>
+            </div>
+            <div class="col-6 col-sm-3">
+              <div class="p-2 border rounded bg-light">
+                <small class="text-muted d-block">Soil Moisture</small>
+                <span class="fw-bold">{{ p.soil_factor }}</span> <small class="text-muted">/ 25</small>
+              </div>
+            </div>
+            <div class="col-6 col-sm-3">
+              <div class="p-2 border rounded bg-light">
+                <small class="text-muted d-block">Slope Factor</small>
+                <span class="fw-bold">{{ p.slope_factor }}</span> <small class="text-muted">/ 20</small>
+              </div>
+            </div>
+            <div class="col-6 col-sm-3">
+              <div class="p-2 border rounded bg-light">
+                <small class="text-muted d-block">Vibration Factor</small>
+                <span class="fw-bold">{{ p.vibration_factor }}</span> <small class="text-muted">/ 15</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert {% if p.risk_level == 'Critical' %}alert-danger{% elif p.risk_level == 'High' %}alert-warning{% else %}alert-info{% endif %} mb-0 py-2 small">
+            <b>Disaster Mitigation Advisory:</b> {{ p.recommendation }}
+          </div>
+        {% else %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-clock-history fs-2 d-block mb-2"></i>
+            No observations logged yet for this site. Click "Sync Live Weather" above to fetch immediate telemetry.
+          </div>
+        {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+</div>
+
+<!-- Historical Sensor Trend Chart -->
+<div class="card card-modern p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">Hydro-Meteorological Trends (Rainfall &amp; Soil Saturation)</h5>
+    <span class="text-muted small">Latest observations</span>
+  </div>
+  <div style="position: relative; height: 260px;">
+    <canvas id="trendChart"></canvas>
+  </div>
+</div>
+
+<!-- Sensor Readings Table -->
+<div class="card card-modern p-4 mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="fw-bold mb-0">Recorded Sensor Telemetry</h5>
+    <a href="{% url 'export_readings_csv' %}" class="btn btn-outline-secondary btn-sm rounded-3">
+      <i class="bi bi-download me-1"></i> Export Telemetry CSV
+    </a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light small text-uppercase">
+        <tr>
+          <th>Timestamp</th>
+          <th>Rain (24h)</th>
+          <th>Rain (72h)</th>
+          <th>Soil Moisture</th>
+          <th>Vibration</th>
+          <th>Ambient Temp / Hum</th>
+          <th>Predicted Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in readings %}
+          <tr>
+            <td><span class="small fw-medium">{{ r.recorded_at|date:"d M Y, H:i" }}</span></td>
+            <td><b>{{ r.rainfall_24h_mm }}</b> mm</td>
+            <td>{{ r.rainfall_72h_mm }} mm</td>
+            <td>
+              <span class="badge {% if r.soil_moisture_pct > 80 %}bg-danger{% elif r.soil_moisture_pct > 65 %}bg-warning text-dark{% else %}bg-light text-dark border{% endif %}">
+                {{ r.soil_moisture_pct }}%
+              </span>
+            </td>
+            <td>{{ r.ground_vibration }}</td>
+            <td class="small text-muted">{{ r.temperature_c }}°C / {{ r.humidity_pct }}%</td>
+            <td>
+              {% if r.prediction %}
+                <span class="badge {% if r.prediction.risk_level == 'Critical' %}badge-critical{% elif r.prediction.risk_level == 'High' %}badge-high{% elif r.prediction.risk_level == 'Moderate' %}badge-moderate{% else %}badge-low{% endif %}">
+                  {{ r.prediction.risk_level }} ({{ r.prediction.risk_score|floatformat:0 }})
+                </span>
+              {% else %}
+                <span class="text-muted">-</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="text-center py-4 text-muted">No readings registered yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Station Alerts Section -->
+{% if alerts %}
+<div class="card card-modern p-4">
+  <h5 class="fw-bold mb-3 text-danger"><i class="bi bi-bell-fill me-2"></i>Triggered Hazard Alerts for this Station</h5>
+  <div class="list-group list-group-flush">
+    {% for a in alerts %}
+      <div class="list-group-item px-0 py-2">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="badge {% if a.severity == 'Critical' %}badge-critical{% else %}badge-high{% endif %} me-2">{{ a.severity }}</span>
+            <span class="small fw-semibold">{{ a.issued_at|date:"d M Y, H:i" }}</span>
+          </div>
+          {% if a.is_acknowledged %}
+            <span class="badge bg-success-subtle text-success border border-success-subtle">Acknowledged</span>
+          {% else %}
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Active Warning</span>
+          {% endif %}
+        </div>
+        <p class="small text-muted mb-0 mt-1">{{ a.message }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 {% endblock %}
 
-{% block extra_scripts %}
+{% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // 1. Initialize Mini Leaflet Map centered on this slope
-        const lat = {{ location.latitude }};
-        const lon = {{ location.longitude }};
-        const color = "{{ location.risk_color_hex }}";
+document.addEventListener("DOMContentLoaded", function() {
+  const point = {{ map_point_json|safe }};
 
-        const miniMap = L.map('location-mini-map').setView([lat, lon], 12);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 16,
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(miniMap);
+  // 1. Station Mini Map (Tactical Dark Grid)
+  const map = L.map('stationMap', { scrollWheelZoom: false }).setView([point.lat, point.lon], 11);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    maxZoom: 19,
+    attribution: '&copy; CartoDB &copy; OpenStreetMap'
+  }).addTo(map);
 
-        const marker = L.circleMarker([lat, lon], {
-            radius: 12,
-            fillColor: color,
-            color: '#FFFFFF',
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 0.95
-        }).addTo(miniMap);
+  L.circleMarker([point.lat, point.lon], {
+    radius: 12,
+    fillColor: point.color,
+    color: '#ffffff',
+    weight: 3,
+    fillOpacity: 0.95
+  }).addTo(map).bindPopup(`<div style="color:#f8fafc;"><b>${point.name}</b><br>Slope: ${point.slope}° | Elev: ${point.elevation}m<br>Status: <b>${point.risk_level}</b></div>`).openPopup();
 
-        marker.bindPopup(`<strong>{{ location.name }}</strong><br>Risk: {{ location.current_risk_level }} (${{ location.current_risk_score|floatformat:1 }}/100)`).openPopup();
+  setTimeout(function() { map.invalidateSize(); }, 250);
+  setTimeout(function() { map.invalidateSize(); }, 800);
+  window.addEventListener('resize', function() { map.invalidateSize(); });
 
-        // 2. Fetch Trend Data for Chart.js
-        fetch("{% url 'api_location_trend' location.pk %}")
-            .then(res => res.json())
-            .then(data => {
-                const ctx = document.getElementById('trendChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.labels.length > 0 ? data.labels : ['Current'],
-                        datasets: [
-                            {
-                                label: 'Total Risk Score (0-100)',
-                                data: data.scores.length > 0 ? data.scores : [{{ location.current_risk_score }}],
-                                borderColor: color,
-                                backgroundColor: color + '22',
-                                borderWidth: 3,
-                                fill: true,
-                                tension: 0.3,
-                                pointRadius: 5,
-                                pointBackgroundColor: color
-                            },
-                            {
-                                label: 'Rainfall Component (/40)',
-                                data: data.rainfall_scores,
-                                borderColor: '#0284C7',
-                                borderWidth: 1.5,
-                                borderDash: [4, 4],
-                                fill: false,
-                                tension: 0.2,
-                                pointRadius: 3
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                min: 0,
-                                max: 100,
-                                ticks: { stepSize: 20 },
-                                grid: { color: '#E2E8F0' }
-                            },
-                            x: {
-                                grid: { display: false }
-                            }
-                        },
-                        plugins: {
-                            legend: { position: 'top' },
-                            tooltip: { mode: 'index', intersect: false }
-                        }
-                    }
-                });
-            })
-            .catch(err => console.error("Error loading chart data:", err));
-    });
+  // 2. Trend Chart (High Pitch Saturated Line Chart)
+  const labels = {{ chart_labels_json|safe }};
+  const rainData = {{ chart_rain_json|safe }};
+  const soilData = {{ chart_soil_json|safe }};
+
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Rainfall 24h (mm)',
+          data: rainData,
+          borderColor: '#00e5ff',
+          backgroundColor: 'rgba(0, 229, 255, 0.15)',
+          fill: true,
+          tension: 0.3,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Soil Moisture (%)',
+          data: soilData,
+          borderColor: '#00ff88',
+          backgroundColor: 'transparent',
+          borderDash: [5, 5],
+          tension: 0.3,
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#cbd5e1' } }
+      },
+      scales: {
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: { display: true, text: 'Rainfall (mm)', color: '#00e5ff' },
+          ticks: { color: '#94a3b8' },
+          grid: { color: 'rgba(255, 255, 255, 0.08)' }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: { display: true, text: 'Soil Moisture (%)', color: '#00ff88' },
+          grid: { drawOnChartArea: false },
+          ticks: { color: '#94a3b8' },
+          min: 0,
+          max: 100
+        },
+        x: {
+          ticks: { color: '#94a3b8' },
+          grid: { color: 'rgba(255, 255, 255, 0.05)' }
+        }
+      }
+    }
+  });
+});
 </script>
 {% endblock %}

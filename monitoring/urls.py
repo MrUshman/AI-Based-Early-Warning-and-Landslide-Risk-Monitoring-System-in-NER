@@ -2,26 +2,26 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Public views
-    path('', views.public_dashboard, name='home'),
-    path('locations/', views.locations_list, name='locations_list'),
-    path('locations/<int:pk>/', views.location_detail, name='location_detail'),
-    path('alerts/', views.alerts_list, name='alerts_list'),
-    path('alerts/<int:pk>/', views.alert_detail, name='alert_detail'),
-    path('incidents/', views.incidents_list, name='incidents_list'),
-    path('safety/', views.safety_guidance, name='safety_guidance'),
-    path('about/', views.about_agencies, name='about_agencies'),
+    path("", views.dashboard, name="dashboard"),
+    path("locations/", views.location_list, name="location_list"),
+    path("locations/add/", views.location_add, name="location_add"),
+    path("locations/<int:pk>/", views.location_detail, name="location_detail"),
+    path("locations/<int:pk>/fetch-weather/", views.fetch_live_weather, name="fetch_live_weather"),
+    path("readings/add/", views.reading_add, name="reading_add"),
+    path("predictions/", views.prediction_list, name="prediction_list"),
+    path("alerts/", views.alert_list, name="alert_list"),
+    path("alerts/<int:pk>/acknowledge/", views.alert_acknowledge, name="alert_acknowledge"),
+    path("incidents/", views.incident_list, name="incident_list"),
+    path("incidents/add/", views.incident_add, name="incident_add"),
+    path("calculator/", views.risk_calculator, name="risk_calculator"),
+    path("metrics/", views.model_metrics_view, name="model_metrics"),
+    path("about/", views.about, name="about"),
 
-    # Operational actions & logged-in views
-    path('alerts/<int:pk>/acknowledge/', views.alert_acknowledge, name='alert_acknowledge'),
-    path('alerts/<int:pk>/close/', views.alert_close, name='alert_close'),
-    path('readings/add/', views.reading_add, name='reading_add'),
-    path('predictions/', views.predictions_list, name='predictions_list'),
-    path('incidents/add/', views.incident_add, name='incident_add'),
-    path('officer/', views.officer_dashboard, name='officer_dashboard'),
+    # REST API for IoT devices / simulation
+    path("api/locations/", views.api_locations, name="api_locations"),
+    path("api/readings/", views.api_create_reading, name="api_create_reading"),
 
-    # Interactive APIs for Map, Charts & Live Scoring preview
-    path('api/locations-geojson/', views.api_locations_geojson, name='api_locations_geojson'),
-    path('api/location/<int:pk>/trend/', views.api_location_trend, name='api_location_trend'),
-    path('api/calculate-risk-preview/', views.api_calculate_preview, name='api_calculate_preview'),
+    # Export data for disaster management
+    path("export/alerts/", views.export_alerts_csv, name="export_alerts_csv"),
+    path("export/readings/", views.export_readings_csv, name="export_readings_csv"),
 ]

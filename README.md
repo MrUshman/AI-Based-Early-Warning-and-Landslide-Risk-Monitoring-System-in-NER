@@ -1,210 +1,167 @@
-# AI-Based Early Warning and Landslide Risk Monitoring System in NER
-### A Geotechnical Early Warning & Disaster Risk Reduction Platform for the North Eastern Region of India
+# AI-Based Early Warning and Landslide Risk Monitoring System in NER, India
 
-[![Django](https://img.shields.io/badge/Django-5.x%20%7C%206.x-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
-[![Python](https://img.shields.io/badge/Python-3.11%2B%20%7C%203.14-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
-[![Leaflet](https://img.shields.io/badge/Leaflet-GIS%20Mapping-199900?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com/)
-[![Chart.js](https://img.shields.io/badge/Chart.js-Data%20Visualization-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
+An enterprise-grade, academic geotechnical monitoring and disaster early-warning web platform designed for India's **North-East Region (NER)** — spanning Arunachal Pradesh, Assam, Manipur, Meghalaya, Mizoram, Nagaland, Sikkim, and Tripura.
 
----
-
-## 📌 Executive Summary & Regional Context
-The **North Eastern Region (NER) of India** (Arunachal Pradesh, Assam, Manipur, Meghalaya, Mizoram, Nagaland, Sikkim, and Tripura) is one of the most landslide-susceptible zones on Earth. The combination of geologically young, steep Himalayan mountains, intense monsoon precipitation (June to September), high seismic activity, and vital cut-slope highways (e.g., NH-10, NH-6, NH-29) means that slope failures frequently cut off entire states and districts.
-
-This system provides an **explainable, transparent early warning and risk monitoring web portal** designed for district administrations, highway maintenance agencies (BRO/NHIDCL), emergency responders (NDRF/SDRF), and the travelling public.
+Powered by a trained **Random Forest Machine Learning Classifier**, **Leaflet Geospatial GIS**, and **Open-Meteo Real-Time Weather Integration**, this platform predicts slope failure probabilities hours before catastrophic collapse, enabling District Disaster Management Authorities (DDMA) and highway patrols to act proactively.
 
 ---
 
 ## 🌟 Key Features
 
-1. **Explainable AI Risk Engine (0–100 Scale):**
-   - Pure, deterministic, verifiable mathematical function:
-     $$\text{Total Score} = \text{Rainfall (40)} + \text{Soil Moisture (25)} + \text{Slope Angle (20)} + \text{Ground Vibration (15)}$$
-   - No opaque black boxes: every score can be checked by hand by a District Collector or Viva Examiner.
+1. **Interactive Geospatial GIS Surveillance Map (Leaflet.js)**
+   - Live spatial map centered on North-East India showing all 12 strategic monitoring corridors (e.g., NH-10 Sikkim, NH-6 Meghalaya, Hunthar Veng Mizoram, NH-29 Nagaland).
+   - Color-coded risk pins: 🟢 Low, 🟡 Moderate, 🟠 High, 🔴 Critical, with interactive popups displaying live slope angle, soil type, elevation, and instant weather status.
 
-2. **Automated Alert Pipeline:**
-   - Any reading scoring **$\ge$ 50.0** immediately generates an official public alert with plain-language operational directives.
-   - Distinct alert lifecycle: `ACTIVE` $\rightarrow$ `ACKNOWLEDGED` $\rightarrow$ `CLOSED`, with auditable officer timestamps in **Indian Standard Time (IST)**.
+2. **Genuine Machine Learning Risk Engine (`RandomForestClassifier`)**
+   - Trained on 3,000 geotechnical samples modeled after Geological Survey of India (GSI) susceptibility criteria and IMD rainfall intensity-duration thresholds.
+   - Evaluates 7 core features: 24h Rainfall, 72h Cumulative Rainfall, Soil Moisture %, Slope Angle, Ground Vibration/Seismic Index, Station Elevation, and Soil Type (Clay, Silt, Loam, Rocky, Sandy).
+   - Outputs continuous risk score (0–100), hazard level, class probability distribution, and explainable factor breakdowns.
 
-3. **Multi-Role Access Control (RBAC):**
-   - **Public Visitor:** No login required. View live dashboard, interactive Leaflet GIS map, 12 slope dossiers, active alerts, incident records, and safety guidance.
-   - **Field Officer / Operator (`field_operator`):** Log in to enter sensor readings (with live risk preview) and report field incidents.
-   - **District Admin / DDMA Officer (`ddma_officer`):** Acknowledge and close active alerts with mandatory operational action notes, triage command queue, and inspect audit logs.
-   - **Super Admin (`admin`):** Full control over locations, users, groups, and Django administration console.
+3. **Live Weather API Integration (Open-Meteo)**
+   - Click **"Sync Live Weather"** on any station page to fetch live real-time precipitation, temperature, and relative humidity for the exact latitude/longitude of that site.
 
-4. **Executive UI/UX Design System:**
-   - **Accessible Risk Badging:** Strictly follows the **Colour + Icon + Text + Numeric Score** design rule for color-blind users and bright sunlight:
-     - 🟢 **LOW (0–24):** `#16A34A` + Check Icon
-     - 🟡 **MODERATE (25–49):** `#CA8A04` + Watch/Eye Icon
-     - 🟠 **HIGH (50–74):** `#EA580C` + Warning Triangle Icon
-     - 🔴 **CRITICAL (75–100):** `#DC2626` + Siren/Octagon Icon
-   - **Interactive Leaflet.js GIS Map:** Color-coded pins for all 12 monitoring locations across the 8 NER states.
-   - **Chart.js Visualizations:** Dynamic multi-observation hazard trend lines for individual slopes.
-   - **Low-Bandwidth & Mobile-First:** Server-rendered Django templates with 44px+ tap targets for field smartphones on weak 3G/4G connections.
-   - **Emergency Helpline 112:** One-click instant dial banner for travelers and residents.
-   - **1-Click Demo Login:** Instant auto-fill buttons on the login screen for seamless examiner demonstration.
+4. **IoT Telemetry REST API & Streaming Simulator**
+   - `POST /api/readings/`: Ingests JSON packets from field rain gauges, TDR soil moisture sensors, and tiltmeters.
+   - Includes `simulate_iot_stream.py` to stream live sensor packets from your terminal during your college project presentation!
 
----
+5. **Early Warning Hazards & Officer Acknowledgment**
+   - Automatically generates emergency hazard bulletins whenever predicted risk reaches **High** or **Critical**.
+   - Includes an officer response workflow with timestamped acknowledgments and standard operating procedures (SOP).
 
-## 🗺️ Monitored Locations Across 8 NER States
+6. **Interactive Risk Simulator (With Viva Presets)**
+   - Test extreme environmental scenarios with 1 click:
+     - 🚨 *Monsoon Cloudburst (Critical)*
+     - ⚠️ *Continuous Heavy Rain (High)*
+     - 🌦️ *Moderate Pre-Monsoon*
+     - ✅ *Stable Dry Weather (Low)*
 
-| # | Location Name | State | District / Sector | Lat, Long | Default Slope | Critical Significance |
-|---|---------------|-------|-------------------|-----------|---------------|-----------------------|
-| 1 | **Sonapur Tunnel Area, NH-6** | Meghalaya | East Jaintia Hills | 25.1092° N, 92.3614° E | 45° | Vital tunnel bottleneck connecting Barak Valley, Mizoram & Tripura |
-| 2 | **NH-10 km 32** | Sikkim | Pakyong / Kalimpong border | 27.2038° N, 88.5132° E | 42° | Main lifeline corridor connecting Gangtok with Siliguri |
-| 3 | **Gangtok Town Slope** | Sikkim | East Sikkim | 27.3389° N, 88.6065° E | 36° | Urban slope directly threatening capital wards & bazaars |
-| 4 | **Shillong-Dawki Road** | Meghalaya | East Khasi Hills | 25.3854° N, 91.8842° E | 38° | Tourist & international trade corridor with deep river gorges |
-| 5 | **Aizawl-Hunthar Veng** | Mizoram | Aizawl | 23.7428° N, 92.7176° E | 39° | Historic active sinking zone threatening main western city access |
-| 6 | **Kohima NH-29** | Nagaland | Kohima | 25.6701° N, 94.1077° E | 41° | Primary highway sustaining supply lines into Nagaland & Manipur |
-| 7 | **Itanagar NH-415** | Arunachal Pradesh | Papum Pare | 27.0979° N, 93.6166° E | 35° | Capital road corridor subject to torrential runoff & toe erosion |
-| 8 | **Bomdila Pass Road** | Arunachal Pradesh | West Kameng | 27.2645° N, 92.4227° E | 44° | High-altitude strategic military route to Tawang (8,500 ft) |
-| 9 | **Ukhrul Road Slope** | Manipur | Ukhrul | 25.1161° N, 94.3622° E | 37° | District hill lifeline prone to monsoon isolation mudslides |
-| 10 | **Guwahati-Fancy Bazar Hill** | Assam | Kamrup Metropolitan | 26.1852° N, 91.7458° E | 32° | Dense urban hillside with steep cuts above marketplace |
-| 11 | **Haflong-New Haflong** | Assam | Dima Hasao | 25.1764° N, 93.0238° E | 43° | Severe instability zone prone to catastrophic rail & road washouts |
-| 12 | **Agartala-Assam Rifles Slope** | Tripura | West Tripura | 23.8438° N, 91.2868° E | 30° | Capital ridge slope prone to gully erosion during cloudbursts |
+7. **Official Disaster Management Reports & CSV Export**
+   - 1-click export of alerts and raw sensor telemetry logs to CSV for civil defense records.
 
 ---
 
-## 🧮 Explainable AI Risk Formula & Worked Example
-
-### Mathematical Breakdown
-1. **Rainfall Factor (Max 40 pts):**
-   - 24-hour intense rain: Scaled up to 150 mm (60% weight = max 24 pts)
-   - 72-hour antecedent rain: Scaled up to 300 mm (40% weight = max 16 pts)
-2. **Soil Moisture Factor (Max 25 pts):**
-   - Volumetric saturation: 0% to 100% $\rightarrow$ 0 to 25 pts
-3. **Slope Angle Factor (Max 20 pts):**
-   - Baseline slope steepness: 0° to 50° mapped to 0 to 20 pts
-4. **Ground Vibration Factor (Max 15 pts):**
-   - Peak Particle Velocity (PPV): 0.0 to 10.0 mm/s mapped to 0 to 15 pts
-
-### The Benchmark Worked Example (Sonapur Tunnel Area, NH-6)
-- **Rainfall:** 125.0 mm in 24h + 262.5 mm in 72h $\rightarrow$ **34.0 / 40 pts**
-- **Soil Moisture:** 88.0% saturation $\rightarrow$ **22.0 / 25 pts**
-- **Slope Angle:** 42.5° $\rightarrow$ **17.0 / 20 pts**
-- **Ground Vibration:** 6.0 mm/s $\rightarrow$ **9.0 / 15 pts**
-- **Total Calculation:** $34.0 + 22.0 + 17.0 + 9.0 = \mathbf{82.0 / 100}$
-- **Outcome:** **CRITICAL RISK** $\rightarrow$ Automatic alert generated, triggering road closure recommendations and NDRF standby units.
-
----
-
-## 🏛️ Inter-Agency Operational Chain in India
+## 🛠️ System Architecture
 
 ```
-  [IMD] Rainfall Telemetry & Forecasts
-               │
-               ▼
-  [Field Telemetry / Sensors] ──> [Explainable AI Engine] ──> High/Critical Risk?
-                                                                   │
-                                                                   ▼
-                                                       [Automated Public Alert]
-                                                                   │
-               ┌───────────────────────────────────────────────────┼──────────────────────────────┐
-               ▼                                                   ▼                              ▼
-    [DDMA District Admin]                                   [BRO / NHIDCL]                 [NDRF / SDRF]
-    Acknowledge & Direct Action                             Traffic Halts & Heavy Plant    Preposition Rescue Units
+[ Field IoT Sensors / Microcontrollers ] 
+           │
+           ▼
+[ Django REST API: /api/readings/ ] <─── [ Open-Meteo Live Weather API ]
+           │
+           ▼
+[ ML Risk Engine: RandomForestClassifier (120 Trees) ]
+   ├── 24h Rainfall (mm)
+   ├── 72h Rainfall (mm)
+   ├── Volumetric Soil Moisture (%)
+   ├── Slope Angle (degrees)
+   ├── Ground Vibration / Seismic Index (0-10)
+   ├── Station Elevation (m)
+   └── Soil Type (Clay, Silt, Loam, Rocky, Sandy)
+           │
+           ▼
+[ Risk Evaluation: Score (0-100) + Hazard Tier (Low/Mod/High/Crit) ]
+           │
+    ┌──────┴──────────────────────────┐
+    ▼                                 ▼
+[ Interactive Leaflet GIS Map ]   [ Emergency Alert Dispatch ]
 ```
 
 ---
 
-## 🔑 Demo & Examiner Credentials
+## 🚀 Quick Start Guide (How to Run)
 
-Use the **1-Click Auto-Fill** buttons on the `/accounts/login/` page:
-
-| Role | Username | Password | Key Permissions |
-|------|----------|----------|-----------------|
-| **Super Admin** | `admin` | `Admin@123` | Full administrative control, location CRUD, user management, Django admin |
-| **DDMA Officer** | `ddma_officer` | `Officer@123` | Acknowledge alerts, close alerts, view officer queue, report incidents |
-| **Field Operator** | `field_operator` | `Operator@123` | Enter sensor readings, view assigned slopes, report suspected slides |
-| **Public Visitor** | *(No login)* | *(None)* | Read-only access to dashboard, map, 12 slopes, alerts, incidents, safety SOPs |
-
----
-
-## 🚀 Quickstart & Installation Guide
-
-### Prerequisites
-- Python 3.10+ (Tested on Python 3.14)
-- Git
-
-### 1. Clone the Repository
+### 1. Open the project in VS Code / Terminal
 ```bash
-git clone https://github.com/MrUshman/AI-Based-Early-Warning-and-Landslide-Risk-Monitoring-System-in-NER.git
-cd AI-Based-Early-Warning-and-Landslide-Risk-Monitoring-System-in-NER
+cd c:\landslide-ews-ner
 ```
 
-### 2. Set Up Virtual Environment
+### 2. Activate Virtual Environment & Install Dependencies
 ```bash
 # Windows
-python -m venv venv
-.\venv\Scripts\activate
+venv\Scripts\activate
 
-# macOS / Linux
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 4. Apply Database Migrations
+### 3. (Optional) Re-train the Machine Learning Model
+```bash
+python monitoring/ml/train.py
+```
+*Outputs: `landslide_rf_model.joblib`, `model_metrics.json`, and `synthetic_ner_landslide_dataset.csv`.*
+
+### 4. Migrate Database & Seed NER Data
 ```bash
 python manage.py migrate
-```
-
-### 5. Seed the Complete Dataset (All 12 Locations, Readings & Accounts)
-```bash
 python manage.py seed_data
 ```
 
-### 6. Run Automated Test Suite
-```bash
-python manage.py test
-```
-*Executes all 9 unit and integration tests (T1 through T9) verifying mathematical calculations, boundary conditions (24/25, 49/50, 74/75), role permissions, and alert triggers.*
-
-### 7. Launch Development Server
+### 5. Launch the Server
 ```bash
 python manage.py runserver
 ```
-Visit **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)** in your browser.
+Open **http://127.0.0.1:8000/** in your browser.
 
 ---
 
-## 🧪 Testing Specification (T1 – T9)
+## 🔑 Demo Evaluator Credentials
 
-| Test ID | Test Target | Inputs | Expected Result | Status |
-|---------|-------------|--------|-----------------|:------:|
-| **T1** | Worked Example | $34 + 22 + 17 + 9$ | Total $82.0$, Level `CRITICAL` | ✅ Pass |
-| **T2** | Top of Moderate Boundary | Factors summing to $49.0$ | Level `MODERATE`, No alert created | ✅ Pass |
-| **T3** | Start of High Boundary | Factors summing to $50.0$ | Level `HIGH`, Auto alert created | ✅ Pass |
-| **T4** | Start of Critical Boundary | Factors summing to $75.0$ | Level `CRITICAL`, Auto alert created | ✅ Pass |
-| **T5** | Low Reading Check | Factors summing to $10.0$ | Level `LOW`, Alert count unchanged | ✅ Pass |
-| **T6** | Form Validation Boundary | Rainfall $-10\text{mm}$, Soil $140\%$ | Form rejected with inline error | ✅ Pass |
-| **T7** | Public View Protection | Anonymous access to `/readings/add/` | Redirected to `/accounts/login/` | ✅ Pass |
-| **T8** | Role Permission Gate | Field Operator attempts to acknowledge alert | `403 Forbidden` response | ✅ Pass |
-| **T9** | Audit Timestamp Trail | DDMA officer acknowledges alert | Status `ACKNOWLEDGED`, officer saved | ✅ Pass |
+| Username | Password  | Role |
+| :--- | :--- | :--- |
+| `admin` | `admin123` | Senior Disaster Management Officer & Superuser |
 
 ---
 
-## 🎓 Academic Viva Questions & Answers
+## 🎬 How to Present This in College (Demo Flow)
 
-1. **Why weights 40 - 25 - 20 - 15?**
-   - *Rainfall (40):* Monsoon rainfall is the recognized primary trigger of catastrophic slope failures in the Himalayas.
-   - *Soil Moisture (25):* Saturated soil loses internal friction and develops high pore-water pressure, leading to liquefaction.
-   - *Slope Angle (20):* Geometrical baseline; steeper slopes ($>35^\circ$) have higher static shear stress.
-   - *Ground Vibration (15):* Critical precursor reflecting micro-tremors, heavy transport resonance, or creeping shear surfaces.
-
-2. **Why explainable scoring instead of Deep Learning / Random Forest directly?**
-   - In disaster response and civil administration, authorities cannot justify closing a national highway or evacuating families based on an opaque black-box neural network. Officers must be able to defend their actions before state authorities. The formula provides 100% auditability.
-
-3. **What is the difference between Version 1 and Future Scope?**
-   - *Version 1 (Current):* Operational web portal with manual/seeded telemetry, transparent explainable AI scoring engine, full RBAC response chain, Leaflet GIS mapping, and Chart.js trends.
-   - *Future Scope:* Live hardware IoT rain gauge and piezometer integrations, automatic IMD weather API webhook ingestion, SMS/WhatsApp broadcast alerts, and machine-learning models trained on accumulated multi-season data.
+1. **Dashboard Overview**:
+   - Open the homepage to show the KPI stat cards (Monitored Stations, Telemetry, Active Warnings, Critical Hazards).
+   - Point out the **Interactive Leaflet GIS Map** displaying stations across Sikkim, Meghalaya, Mizoram, Nagaland, and Assam. Click on a marker to show the pop-up details.
+2. **AI Model & Metrics Page**:
+   - Navigate to **AI Model** in the navbar.
+   - Show the **Confusion Matrix**, **Feature Importances Bar Chart** (highlighting that Rainfall and Slope Angle are the top predictors), and **Per-Class Precision & Recall**.
+3. **Live Weather Sync**:
+   - Click on **Stations** → Select **Sonapur Tunnel Area, NH-6 (Meghalaya)**.
+   - Click **"Sync Live Weather (Open-Meteo)"** to show real-time weather being pulled via API and evaluated on the spot!
+4. **Live IoT Terminal Demonstration**:
+   - Open a second terminal window and run:
+     ```bash
+     python simulate_iot_stream.py --count 5 --interval 2
+     ```
+   - Watch real-time sensor packets stream to the API and evaluate live in the terminal!
+5. **Risk Simulator**:
+   - Go to **Risk Simulator** and click the **"Monsoon Cloudburst"** preset to show instant risk scoring and emergency SOP recommendations.
 
 ---
 
-## 📜 License
-Developed for educational research and disaster risk reduction demonstration in the North Eastern Region of India.
+## 🧪 Unit Testing
+
+Run the full automated test suite (verifying ML predictions, REST APIs, CSV exports, and views):
+```bash
+python manage.py test
+```
+
+---
+
+## 🎓 Viva / Examiner Q&A Guide
+
+**Q1: Why did you choose Random Forest instead of a simple linear formula or neural network?**
+> *Answer:* Landslide occurrences are governed by non-linear physical thresholds. For example, a 42° slope remains stable in dry conditions but fails catastrophically when soil moisture surpasses 80%. Linear models cannot capture these compound tipping points, while Deep Learning models require tens of thousands of real sensor samples that are scarce in disaster management. Random Forest handles non-linear interactions reliably without overfitting on small-to-medium geotechnical datasets.
+
+**Q2: What is the physical basis of the features used?**
+> *Answer:* The model is grounded in classical geotechnical slope stability and Caine's (1980) rainfall intensity-duration thresholds:
+> 1. **Rainfall (24h/72h)**: Drives groundwater table elevation and positive pore-water pressure, reducing the effective normal stress ($\sigma' = \sigma - u$).
+> 2. **Soil Moisture**: Measures soil saturation approaching the liquid limit where shear strength drops drastically.
+> 3. **Slope Angle**: Determines the gravitational driving shear stress ($\tau = \gamma h \sin\beta\cos\beta$).
+> 4. **Ground Vibration**: Accounts for horizontal seismic or heavy traffic accelerations that destabilize active shear planes.
+
+**Q3: How does the system handle communication in remote Himalayan areas with poor internet?**
+> *Answer:* The architecture supports edge telemetry queuing (via microcontrollers over LoRaWAN or satellite SMS). When connectivity resumes, packets are pushed in bulk to the REST API endpoint (`/api/readings/`), which processes and logs them chronologically.
+
+---
+
+### Tech Stack
+- **Framework**: Python 3, Django 5.1
+- **Machine Learning**: Scikit-Learn 1.9, NumPy, Joblib
+- **Geospatial & Visuals**: Leaflet.js, OpenStreetMap, Chart.js 4.4, Bootstrap 5.3
+- **Data & APIs**: Open-Meteo REST API, SQLite / PostgreSQL

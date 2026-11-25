@@ -1,0 +1,87 @@
+{% extends "monitoring/base.html" %}
+{% block title %}Emergency Early Warnings | Landslide EWS NER{% endblock %}
+{% block meta_description %}Active hazard bulletins and emergency alert dispatches triggered by high landslide probability in the North-East Region.{% endblock %}
+
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+  <div>
+    <h2 class="fw-bold mb-1 d-flex align-items-center">
+      <i class="bi bi-bell-fill text-danger me-2"></i>Early Warning Hazard Alerts
+    </h2>
+    <p class="text-muted mb-0">Automated disaster broadcast feeds triggered when ML Risk Engine calculates High or Critical probability.</p>
+  </div>
+  <div class="mt-3 mt-md-0 d-flex gap-2">
+    <a href="{% url 'export_alerts_csv' %}" class="btn btn-outline-secondary btn-sm rounded-3">
+      <i class="bi bi-download me-1"></i> Export Alerts (CSV)
+    </a>
+    <div class="btn-group btn-group-sm">
+      <a class="btn {% if show == 'open' %}btn-danger{% else %}btn-outline-danger{% endif %}" href="?show=open">
+        <i class="bi bi-exclamation-circle me-1"></i> Open Warnings
+      </a>
+      <a class="btn {% if show == 'all' %}btn-secondary{% else %}btn-outline-secondary{% endif %}" href="?show=all">
+        <i class="bi bi-archive me-1"></i> Full Log
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  {% for a in alerts %}
+    <div class="col-12">
+      <div class="card card-modern p-4 border {% if a.severity == 'Critical' %}border-danger{% else %}border-warning{% endif %}">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-2">
+          <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
+            <span class="badge {% if a.severity == 'Critical' %}badge-critical{% else %}badge-high{% endif %} px-3 py-2 fs-6">
+              {{ a.severity }} THREAT
+            </span>
+            <h5 class="fw-bold mb-0 text-dark">
+              <a href="{% url 'location_detail' a.location.pk %}" class="text-decoration-none text-dark">
+                {{ a.location.name }}
+              </a>
+            </h5>
+            <span class="badge bg-light text-muted border">{{ a.location.district }}, {{ a.location.state }}</span>
+          </div>
+
+          <div class="small text-muted">
+            <i class="bi bi-clock me-1"></i>Issued: <b>{{ a.issued_at|date:"d M Y, H:i:s" }}</b>
+          </div>
+        </div>
+
+        <p class="text-dark my-2" style="font-size: 0.95rem; line-height: 1.6;">{{ a.message }}</p>
+
+        <div class="pt-3 mt-2 border-top d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 small">
+          <div>
+            {% if a.is_acknowledged %}
+              <span class="text-success fw-semibold">
+                <i class="bi bi-check-circle-fill me-1"></i>Acknowledged by Officer <b>{{ a.acknowledged_by.username }}</b> on {{ a.acknowledged_at|date:"d M, H:i" }}
+              </span>
+            {% else %}
+              <span class="text-danger fw-semibold">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>Unacknowledged Incident — Immediate response required
+              </span>
+            {% endif %}
+          </div>
+
+          {% if user.is_authenticated and not a.is_acknowledged %}
+            <form method="post" action="{% url 'alert_acknowledge' a.pk %}" class="m-0">
+              {% csrf_token %}
+              <button class="btn btn-outline-success btn-sm rounded-3">
+                <i class="bi bi-check2-circle me-1"></i> Acknowledge &amp; Dispatch SOP
+              </button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-12">
+      <div class="card card-modern p-5 text-center text-muted">
+        <i class="bi bi-shield-check display-4 text-success d-block mb-3"></i>
+        <h5>No active hazard alerts</h5>
+        <p class="small mb-0">All monitoring telemetry remains within stable geotechnical safety boundaries.</p>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "monitoring/base.html" %}
+{% block title %}Officer Authentication | Landslide EWS NER{% endblock %}
+{% block meta_description %}Authorized disaster management officer login portal for managing early warning alerts and telemetry stations.{% endblock %}
+
+
+{% block content %}
+<div class="row justify-content-center py-5">
+  <div class="col-md-6 col-lg-4">
+    <div class="card card-modern p-4 p-md-5 border-0 shadow">
+      <div class="text-center mb-4">
+        <div class="stat-icon-wrapper bg-success-subtle text-success mx-auto mb-3" style="width: 56px; height: 56px; font-size: 1.6rem;">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <h4 class="fw-bold mb-1">Disaster Officer Portal</h4>
+        <p class="text-muted small">Sign in to acknowledge alerts, register telemetry stations, and configure thresholds.</p>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-secondary">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-success w-100 py-2 fw-semibold rounded-3 mt-3">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Dashboard
+        </button>
+      </form>
+
+      <div class="card bg-light border p-3 rounded-3 mt-4 text-center">
+        <span class="fw-semibold text-secondary small d-block mb-1"><i class="bi bi-key-fill text-warning me-1"></i>Demo Evaluator Credentials</span>
+        <div class="small text-muted font-monospace">
+          Username: <b>admin</b> &nbsp;|&nbsp; Password: <b>admin123</b>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

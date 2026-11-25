@@ -1,275 +1,1039 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}AI-Based Early Warning & Landslide Risk Monitoring System in NER{% endblock %}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=5">
+  <title>{% block title %}AI Landslide Early Warning System | NER Command Center{% endblock %}</title>
+  
+  <meta name="description" content="{% block meta_description %}Autonomous AI &amp; IoT landslide early warning and geotechnical monitoring system covering vulnerable mountain corridors across North-East India.{% endblock %}">
+  <meta name="author" content="Geotechnical Disaster Research Group - NER">
+  <meta name="theme-color" content="#064e3b">
 
-    <!-- Bootstrap 5.3 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Leaflet GIS CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <!-- Custom CSS -->
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+  <!-- Favicon (SVG + Fallback) -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+  <link rel="alternate icon" href="/favicon.ico">
 
-    {% block extra_head %}{% endblock %}
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5.3 & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Leaflet.js GIS Mapping (Local + CDN Fallback) -->
+  <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}" onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';"/>
+  <script src="{% static 'leaflet/leaflet.js' %}"></script>
+  <script>
+    if (typeof L === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"><\/script>');
+    }
+  </script>
+  
+  <!-- Chart.js 4.4 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg-space: #070c18;
+      --bg-surface: rgba(13, 21, 39, 0.78);
+      --bg-header: rgba(10, 16, 31, 0.92);
+      --neon-emerald: #00ff88;
+      --emerald-glow: #10b981;
+      --electric-cyan: #00e5ff;
+      --amber-warn: #fbbf24;
+      --neon-crimson: #ff2a55;
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(16, 185, 129, 0.4);
+      --text-bright: #f8fafc;
+      --text-soft: #cbd5e1;
+      --text-muted: #94a3b8;
+    }
+
+    /* 1. Prevent Horizontal Scroll on all screen sizes */
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100vw !important;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #070c18;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.12) 0px, transparent 45%),
+        radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 45%),
+        radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.9) 0px, transparent 60%);
+      background-attachment: fixed;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Global Headings & Text Color Overrides for High-Contrast Dark Theme */
+    h1, h2, h3, h4, h5, h6, .text-dark {
+      color: #f8fafc !important;
+    }
+    .text-secondary {
+      color: #94a3b8 !important;
+    }
+    .text-muted {
+      color: #94a3b8 !important;
+    }
+    a {
+      color: #38bdf8;
+      text-decoration: none;
+      transition: color 0.15s ease, text-shadow 0.15s ease;
+    }
+    a:hover {
+      color: #7dd3fc;
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+    }
+
+    .container-fluid, .site-container {
+      max-width: 1400px;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      padding-left: clamp(16px, 2.5vw, 32px) !important;
+      padding-right: clamp(16px, 2.5vw, 32px) !important;
+      width: 100%;
+    }
+    .row {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    /* Top Emergency Alert Ticker - Saturated High-Pitch Crimson Ribbon */
+    .emergency-ticker {
+      background: linear-gradient(90deg, #7f1d1d 0%, #991b1b 50%, #7f1d1d 100%);
+      color: #ffffff;
+      font-size: 0.78rem;
+      min-height: 32px;
+      padding: 0.25rem 0;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 2px 12px rgba(185, 28, 28, 0.35);
+    }
+    .emergency-ticker .live-beacon {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #00ff88;
+      box-shadow: 0 0 10px #00ff88;
+      animation: blink 1.2s infinite;
+      margin-right: 6px;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.8); }
+    }
+
+    /* Executive Command Header - Dark Glassmorphism */
+    .command-header {
+      background: rgba(10, 16, 31, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+      padding: 0.45rem 0;
+    }
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 44px;
+      width: 100%;
+    }
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+      color: #ffffff !important;
+      line-height: 1.1;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .brand-title .text-success {
+      color: #00ff88 !important;
+      text-shadow: 0 0 14px rgba(0, 255, 136, 0.6);
+    }
+    .brand-sub {
+      font-size: 0.63rem;
+      color: #94a3b8;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      margin-top: 2px;
+    }
+    .brand-title .badge-ner {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: #ffffff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.45rem;
+      border-radius: 5px;
+      line-height: 1.2;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+
+    /* Unified Horizontal Nav Alignment */
+    .nav-command {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      flex-wrap: nowrap;
+    }
+    .nav-command .nav-item {
+      display: inline-flex;
+      align-items: center;
+      height: 38px;
+    }
+
+    /* HIGH-PITCH SATURATED ACTIVE HIGHLIGHTER (Glowing Neon Accent) */
+    .nav-command .nav-link {
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.81rem;
+      color: #94a3b8 !important;
+      padding: 0 0.72rem !important;
+      border-radius: 8px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      gap: 0.35rem;
+      white-space: nowrap;
+      line-height: 1;
+      text-decoration: none;
+      position: relative;
+      border: 1px solid transparent;
+    }
+    .nav-command .nav-link:hover {
+      color: #34d399 !important;
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+    }
+    .nav-command .nav-link.active {
+      color: #ffffff !important;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.32) 0%, rgba(5, 150, 105, 0.52) 100%) !important;
+      border: 1px solid #10b981 !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+      font-weight: 700;
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.85);
+    }
+    .nav-command .nav-link.active i {
+      text-shadow: 0 0 12px currentColor;
+      transform: scale(1.15);
+    }
+    /* Saturated electric neon bottom highlighter bar */
+    .nav-command .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 12%;
+      right: 12%;
+      height: 3px;
+      background: #00ff88;
+      border-radius: 4px;
+      box-shadow: 0 0 10px #00ff88, 0 0 18px #00ff88;
+    }
+
+    .nav-divider {
+      width: 1px;
+      height: 24px;
+      background-color: rgba(255, 255, 255, 0.12);
+      margin: 0 0.5rem;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    /* Officer Login Button */
+    .btn-officer-login {
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 0 1rem;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #f8fafc !important;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      text-decoration: none;
+      gap: 0.4rem;
+    }
+    .btn-officer-login:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      border-color: #10b981;
+      color: #ffffff !important;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.55);
+      transform: translateY(-1px);
+    }
+    .btn-officer-login.active-login {
+      border-color: #f59e0b;
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.55);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.45) 100%);
+    }
+
+    .btn-officer-account {
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0 0.85rem;
+      border-radius: 8px;
+      background: rgba(16, 185, 129, 0.18);
+      color: #34d399 !important;
+      border: 1px solid #10b981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+      white-space: nowrap;
+      text-decoration: none;
+      gap: 0.35rem;
+    }
+    .btn-officer-account:hover {
+      background: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.5);
+    }
+
+    .dropdown-menu {
+      background: #0d1527 !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 10px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6) !important;
+      font-size: 0.88rem;
+      padding: 0.5rem;
+    }
+    .dropdown-item {
+      border-radius: 6px;
+      font-weight: 500;
+      padding: 0.45rem 0.75rem;
+      display: flex;
+      align-items: center;
+      color: #cbd5e1 !important;
+    }
+    .dropdown-item:hover {
+      background-color: rgba(16, 185, 129, 0.16) !important;
+      color: #00ff88 !important;
+    }
+    .dropdown-divider {
+      border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* Cards & Elements - Cyber Geotechnical Glassmorphism */
+    .card-modern {
+      background: rgba(13, 21, 39, 0.78) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      color: #e2e8f0;
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .card-modern:hover {
+      border-color: rgba(16, 185, 129, 0.35) !important;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 24px rgba(16, 185, 129, 0.12);
+      transform: translateY(-2px);
+    }
+    .card-header {
+      background: rgba(15, 23, 42, 0.85) !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+      color: #f8fafc !important;
+    }
+    
+    /* High-Pitch Saturated Stat Icon Wrappers */
+    .stat-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .stat-icon-wrapper.bg-primary-subtle {
+      background: rgba(6, 182, 212, 0.18) !important;
+      color: #00e5ff !important;
+      box-shadow: 0 0 18px rgba(6, 182, 212, 0.35);
+    }
+    .stat-icon-wrapper.bg-info-subtle {
+      background: rgba(56, 189, 248, 0.18) !important;
+      color: #38bdf8 !important;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
+    }
+    .stat-icon-wrapper.bg-warning-subtle {
+      background: rgba(245, 158, 11, 0.2) !important;
+      color: #fbbf24 !important;
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.4);
+    }
+    .stat-icon-wrapper.bg-danger-subtle {
+      background: rgba(239, 68, 68, 0.22) !important;
+      color: #ff2a55 !important;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.45);
+    }
+    .stat-icon-wrapper.bg-success-subtle {
+      background: rgba(16, 185, 129, 0.2) !important;
+      color: #00ff88 !important;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Risk Badges - High Pitch Saturated Glow */
+    .badge-critical {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .badge-high {
+      background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%) !important;
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(234, 88, 12, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .badge-moderate {
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(217, 119, 6, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .badge-low {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+      color: #ffffff !important;
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* High Pitch Saturated Buttons */
+    .btn-success {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+      border-color: #10b981 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+      font-weight: 600;
+    }
+    .btn-success:hover {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+      border-color: #00ff88 !important;
+      box-shadow: 0 0 22px rgba(16, 185, 129, 0.65);
+      transform: translateY(-1px);
+    }
+    .btn-outline-success {
+      border-color: #10b981;
+      color: #34d399;
+    }
+    .btn-outline-success:hover {
+      background-color: #059669;
+      border-color: #00ff88;
+      color: #ffffff;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.45);
+    }
+    .btn-outline-secondary {
+      border-color: rgba(255, 255, 255, 0.18);
+      color: #cbd5e1;
+    }
+    .btn-outline-secondary:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+    .btn-outline-danger {
+      border-color: #ef4444;
+      color: #ff6b81;
+    }
+    .btn-outline-danger:hover {
+      background-color: #dc2626;
+      border-color: #ff2a55;
+      color: #ffffff;
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.5);
+    }
+    .btn-outline-primary {
+      border-color: #0284c7;
+      color: #38bdf8;
+    }
+    .btn-outline-primary:hover {
+      background-color: #0284c7;
+      border-color: #00e5ff;
+      color: #ffffff;
+      box-shadow: 0 0 18px rgba(2, 132, 199, 0.5);
+    }
+
+    /* Pulsing Beacon */
+    .pulse-danger {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ff2a55;
+      box-shadow: 0 0 0 0 rgba(255, 42, 85, 0.8);
+      animation: pulse-ring 1.8s infinite;
+      margin-right: 6px;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 42, 85, 0.8); }
+      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 42, 85, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 42, 85, 0); }
+    }
+
+    /* Table Responsiveness & Dark Styling */
+    .table-responsive {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 10px;
+    }
+    .table {
+      --bs-table-bg: transparent;
+      --bs-table-color: #cbd5e1;
+      --bs-table-hover-bg: rgba(255, 255, 255, 0.04);
+      --bs-table-hover-color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.07) !important;
+    }
+    .table thead th, .table-light {
+      background: rgba(30, 41, 59, 0.75) !important;
+      color: #cbd5e1 !important;
+      border-color: rgba(255, 255, 255, 0.09) !important;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .table tbody tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .table tbody td {
+      border-color: rgba(255, 255, 255, 0.05) !important;
+    }
+    .btn, .nav-link {
+      touch-action: manipulation;
+    }
+
+    /* Form Inputs in Dark Theme */
+    .form-control, .form-select {
+      background-color: rgba(15, 23, 42, 0.85) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      color: #f8fafc !important;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #10b981 !important;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.4) !important;
+      background-color: rgba(15, 23, 42, 0.95) !important;
+    }
+    .input-group-text {
+      background-color: rgba(30, 41, 59, 0.8) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      color: #94a3b8 !important;
+    }
+    .bg-white {
+      background-color: rgba(15, 23, 42, 0.85) !important;
+      color: #f8fafc !important;
+    }
+    .bg-light {
+      background-color: rgba(30, 41, 59, 0.6) !important;
+      color: #cbd5e1 !important;
+    }
+    .border {
+      border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    .border-bottom {
+      border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    .border-top {
+      border-top-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    .list-group-item {
+      background-color: transparent !important;
+      border-color: rgba(255, 255, 255, 0.06) !important;
+      color: #cbd5e1;
+    }
+
+    /* Modern Footer */
+    footer {
+      margin-top: auto;
+      background: #050914;
+      color: #94a3b8;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2.5rem 0 1.5rem 0;
+      font-size: 0.85rem;
+    }
+    footer a {
+      color: #cbd5e1;
+      text-decoration: none;
+      transition: color 0.15s ease, text-shadow 0.15s ease;
+    }
+    footer a:hover {
+      color: #00ff88;
+      text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+    }
+    footer .footer-heading {
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 0.92rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    /* Offcanvas Mobile Drawer Styling */
+    .offcanvas-custom {
+      max-width: 320px;
+      background: #090e1b !important;
+      color: #cbd5e1;
+      border-left: 1px solid rgba(255, 255, 255, 0.09);
+    }
+    .offcanvas-custom .nav-link {
+      padding: 0.75rem 1rem !important;
+      font-weight: 600;
+      font-size: 0.92rem;
+      border-radius: 8px;
+      margin-bottom: 0.25rem;
+      color: #94a3b8 !important;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .offcanvas-custom .nav-link:hover {
+      background-color: rgba(16, 185, 129, 0.12);
+      color: #34d399 !important;
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+    .offcanvas-custom .nav-link.active {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.5) 100%) !important;
+      color: #ffffff !important;
+      border: 1px solid #10b981 !important;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.45) !important;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+    }
+
+    /* Leaflet Dark Popup Styling */
+    .leaflet-popup-content-wrapper {
+      background: rgba(15, 23, 42, 0.96) !important;
+      color: #f8fafc !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7) !important;
+      border-radius: 10px !important;
+    }
+    .leaflet-popup-tip {
+      background: rgba(15, 23, 42, 0.96) !important;
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
 </head>
 <body>
 
-    <!-- Government of India / Regional Coordination Topbar -->
-    <div class="gov-topbar">
-        <div class="container-fluid px-lg-4">
-            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                <div>
-                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-2">NER-LEWS</span>
-                    <span>North Eastern Region Early Warning & Slope Monitoring Portal &bull; Covering 8 NER States</span>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <span class="text-white-50"><i class="bi bi-clock me-1"></i>IST (Asia/Kolkata): <strong class="text-light">{{ system_now_ist|date:"d M Y, H:i" }}</strong></span>
-                    <span class="d-none d-md-inline text-white-50">|</span>
-                    <a href="tel:112" class="text-danger-emphasis text-decoration-none fw-bold bg-danger-subtle px-2 py-0.5 rounded">
-                        <i class="bi bi-telephone-fill me-1"></i>Emergency Helpline: 112
-                    </a>
-                </div>
-            </div>
-        </div>
+<!-- 1. Top Emergency Broadcast Ribbon (Aligned to 1400px Grid) -->
+<div class="emergency-ticker">
+  <div class="container-fluid d-flex flex-wrap justify-content-between align-items-center">
+    <div class="text-truncate py-1">
+      <span class="live-beacon"></span>
+      <strong class="text-uppercase tracking-wider">NER Emergency Surveillance Grid:</strong>
+      <span>Continuous monitoring across Sikkim (NH-10), Meghalaya (NH-6), Mizoram &amp; Nagaland corridors.</span>
     </div>
-
-    <!-- Active Emergency Alert Warning Strip -->
-    {% if global_active_alerts_count > 0 %}
-    <div class="emergency-strip">
-        <div class="container-fluid px-lg-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2">
-                <span class="spinner-grow spinner-grow-sm text-light" role="status"></span>
-                <span><strong>URGENT MONSOON ADVISORY:</strong> {{ global_active_alerts_count }} active landslide alert(s) in effect across North Eastern corridors.</span>
-            </div>
-            <a href="{% url 'alerts_list' %}" class="btn btn-sm btn-light text-danger fw-bold py-0 px-3">
-                Review Alerts & Action SOPs <i class="bi bi-arrow-right"></i>
-            </a>
-        </div>
+    <div class="d-flex align-items-center gap-3 ms-auto small text-nowrap py-1">
+      <span><i class="bi bi-clock me-1"></i><span id="liveClock">IST --:--:--</span></span>
+      <span>
+        <a href="tel:1077" class="text-white text-decoration-none fw-bold" title="Call National Disaster Management Helpline">
+          <i class="bi bi-telephone-fill text-warning me-1"></i>Helpline: 1077
+        </a>
+      </span>
     </div>
-    {% endif %}
+  </div>
+</div>
 
-    <!-- Main Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-2">
-        <div class="container-fluid px-lg-4">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
-                <div class="bg-primary text-white p-2 rounded-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
-                    <i class="bi bi-shield-shaded fs-5"></i>
-                </div>
-                <div>
-                    <span class="fs-5 fw-bold text-white d-block lh-1">NER Landslide EWS</span>
-                    <small class="text-white-50 fs-8" style="font-size: 0.72rem; letter-spacing: 0.05em;">AI RISK MONITORING SYSTEM</small>
-                </div>
+<!-- 2. Main Executive Command Header (Centered 1400px Grid, Integrated Login) -->
+<header class="command-header sticky-top">
+  <div class="container-fluid">
+    <div class="header-bar">
+      
+      <!-- Clickable Brand Logo -->
+      <a class="navbar-brand d-flex align-items-center me-3 text-decoration-none flex-shrink-0" href="{% url 'dashboard' %}" title="Home - Landslide Early Warning System">
+        <div class="d-flex align-items-center justify-content-center bg-dark text-white rounded-3 shadow-sm me-2" style="width: 38px; height: 38px; flex-shrink: 0;">
+          <i class="bi bi-triangle-half text-warning fs-5"></i>
+        </div>
+        <div class="d-flex flex-column justify-content-center">
+          <div class="brand-title">
+            <span>LANDSLIDE</span><span class="text-success">EWS</span>
+            <span class="badge-ner ms-1">NER INDIA</span>
+          </div>
+          <div class="brand-sub">EARLY WARNING &amp; RISK SURVEILLANCE</div>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation Menu (All 8 Items + Connected Officer Login) -->
+      <nav class="d-none d-xl-flex align-items-center ms-auto">
+        <ul class="nav-command mb-0">
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}" title="Command Dashboard">
+              <i class="bi bi-speedometer2 text-primary"></i> Dashboard
             </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if 'location' in request.resolver_match.url_name or request.resolver_match.url_name == 'reading_add' %}active{% endif %}" href="{% url 'location_list' %}" title="Monitoring Stations">
+              <i class="bi bi-geo-alt-fill text-danger"></i> Stations
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if 'alert' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'alert_list' %}" title="Emergency Bulletins">
+              <i class="bi bi-bell-fill text-warning"></i> Early Warnings
+              <span class="badge bg-danger rounded-pill px-1 py-0 ms-1" style="font-size: 0.6rem; box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);">LIVE</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if 'prediction' in request.resolver_match.url_name or 'api_' in request.resolver_match.url_name or request.resolver_match.url_name == 'export_readings_csv' %}active{% endif %}" href="{% url 'prediction_list' %}" title="Telemetry Stream">
+              <i class="bi bi-graph-up text-info"></i> Risk Feed
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'risk_calculator' %}active{% endif %}" href="{% url 'risk_calculator' %}" title="What-If Simulation Sandbox">
+              <i class="bi bi-calculator text-success"></i> Risk Simulator
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'model_metrics' %}active{% endif %}" href="{% url 'model_metrics' %}" title="AI Model Evaluation">
+              <i class="bi bi-cpu-fill text-primary"></i> AI Model
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if 'incident' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'incident_list' %}" title="Historical Archive">
+              <i class="bi bi-clock-history text-secondary"></i> Incident Archive
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'about' %}" title="System Architecture">
+              <i class="bi bi-info-circle text-muted"></i> Technical Spec
+            </a>
+          </li>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+          <!-- Subtle Divider between Nav Links & Auth Button -->
+          <li class="nav-divider"></li>
+
+          <!-- Officer Login / Account Pill (Physically connected with navigation, NEVER isolated in the corner) -->
+          {% if user.is_authenticated %}
+            <li class="nav-item dropdown">
+              <button class="btn btn-officer-account dropdown-toggle d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-fill-gear text-success"></i>
+                <span>{{ user.username }}</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                <li><a class="dropdown-item small" href="{% url 'reading_add' %}"><i class="bi bi-plus-circle text-success me-2"></i> Log Reading</a></li>
+                <li><a class="dropdown-item small" href="/admin/"><i class="bi bi-shield-lock text-primary me-2"></i> Django Admin</a></li>
+                <li><a class="dropdown-item small" href="{% url 'export_alerts_csv' %}"><i class="bi bi-download text-secondary me-2"></i> Export Alerts (CSV)</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form method="post" action="{% url 'logout' %}" class="px-2 m-0">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger w-100 py-1">Logout</button>
+                  </form>
+                </li>
+              </ul>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a href="{% url 'login' %}" class="btn-officer-login {% if request.resolver_match.url_name == 'login' %}active-login{% endif %}" title="Officer Login Portal">
+                <i class="bi bi-shield-lock-fill text-warning"></i>
+                <span>Officer Login</span>
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+
+      <!-- Medium Laptop Screen Menu (lg to xl) -->
+      <div class="d-none d-lg-flex d-xl-none align-items-center gap-1 ms-auto">
+        <a class="nav-link px-2 py-1 small fw-semibold rounded {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">Dashboard</a>
+        <a class="nav-link px-2 py-1 small fw-semibold rounded {% if 'location' in request.resolver_match.url_name or request.resolver_match.url_name == 'reading_add' %}active{% endif %}" href="{% url 'location_list' %}">Stations</a>
+        <a class="nav-link px-2 py-1 small fw-semibold rounded {% if 'alert' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'alert_list' %}">Alerts</a>
+        <a class="nav-link px-2 py-1 small fw-semibold rounded {% if request.resolver_match.url_name == 'risk_calculator' %}active{% endif %}" href="{% url 'risk_calculator' %}">Simulator</a>
+        <a class="nav-link px-2 py-1 small fw-semibold rounded {% if request.resolver_match.url_name == 'model_metrics' %}active{% endif %}" href="{% url 'model_metrics' %}">AI Model</a>
+        
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary border dropdown-toggle px-2 py-1" type="button" data-bs-toggle="dropdown" style="font-size: 0.8rem;">More</button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <li><a class="dropdown-item small" href="{% url 'prediction_list' %}"><i class="bi bi-graph-up me-2 text-info"></i>Risk Feed</a></li>
+            <li><a class="dropdown-item small" href="{% url 'incident_list' %}"><i class="bi bi-clock-history me-2 text-secondary"></i>Incident Archive</a></li>
+            <li><a class="dropdown-item small" href="{% url 'about' %}"><i class="bi bi-info-circle me-2 text-muted"></i>Technical Spec</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item small" href="{% url 'export_alerts_csv' %}"><i class="bi bi-download me-2 text-secondary"></i>Export Alerts (CSV)</a></li>
+          </ul>
+        </div>
+
+        <span class="nav-divider"></span>
+
+        {% if user.is_authenticated %}
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-success dropdown-toggle py-1 px-2" type="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-fill"></i> {{ user.username }}
             </button>
-
-            <div class="collapse navbar-collapse" id="mainNavbar">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active fw-semibold text-white{% endif %}" href="{% url 'home' %}">
-                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'locations_list' or request.resolver_match.url_name == 'location_detail' %}active fw-semibold text-white{% endif %}" href="{% url 'locations_list' %}">
-                            <i class="bi bi-geo-alt me-1"></i> 12 Locations
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative {% if request.resolver_match.url_name == 'alerts_list' or request.resolver_match.url_name == 'alert_detail' %}active fw-semibold text-white{% endif %}" href="{% url 'alerts_list' %}">
-                            <i class="bi bi-bell me-1"></i> Alerts
-                            {% if global_active_alerts_count > 0 %}
-                            <span class="badge rounded-pill bg-danger ms-1">{{ global_active_alerts_count }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'incidents_list' %}active fw-semibold text-white{% endif %}" href="{% url 'incidents_list' %}">
-                            <i class="bi bi-journal-text me-1"></i> Incidents
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'safety_guidance' %}active fw-semibold text-white{% endif %}" href="{% url 'safety_guidance' %}">
-                            <i class="bi bi-heart-pulse me-1"></i> Public Safety
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'about_agencies' %}active fw-semibold text-white{% endif %}" href="{% url 'about_agencies' %}">
-                            <i class="bi bi-building me-1"></i> Agency SOP
-                        </a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'predictions_list' %}active fw-semibold text-white{% endif %}" href="{% url 'predictions_list' %}">
-                            <i class="bi bi-calculator me-1"></i> Predictions Audit
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'reading_add' %}" class="btn btn-warning btn-sm text-dark fw-bold px-3">
-                            <i class="bi bi-plus-circle-fill me-1"></i> Add Reading
-                        </a>
-                        <a href="{% url 'officer_dashboard' %}" class="btn btn-outline-info btn-sm">
-                            <i class="bi bi-kanban me-1"></i> Officer Queue
-                        </a>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary btn-sm dropdown-toggle d-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-person-badge"></i> {{ user.username }}
-                                {% if user.is_superuser %}
-                                    <span class="badge bg-danger ms-1">Admin</span>
-                                {% elif is_ddma_or_admin %}
-                                    <span class="badge bg-primary ms-1">DDMA</span>
-                                {% else %}
-                                    <span class="badge bg-success ms-1">Operator</span>
-                                {% endif %}
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow">
-                                <li><h6 class="dropdown-header">Logged in as {{ user.get_full_name|default:user.username }}</h6></li>
-                                {% if user.is_superuser %}
-                                <li><a class="dropdown-item" href="{% url 'admin:index' %}" target="_blank"><i class="bi bi-gear-fill me-2"></i>Django Admin</a></li>
-                                {% endif %}
-                                <li><a class="dropdown-item" href="{% url 'officer_dashboard' %}"><i class="bi bi-kanban me-2"></i>Officer Dashboard</a></li>
-                                <li><a class="dropdown-item" href="{% url 'reading_add' %}"><i class="bi bi-plus-square me-2"></i>Enter Sensor Reading</a></li>
-                                <li><a class="dropdown-item" href="{% url 'incident_add' %}"><i class="bi bi-flag me-2"></i>Report Ground Incident</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form method="post" action="{% url 'logout' %}" class="px-2">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 text-start">
-                                            <i class="bi bi-box-arrow-right me-2"></i>Sign Out
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
-                    {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm px-3">
-                            <i class="bi bi-box-arrow-in-right me-1"></i> Officer Login
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Global Toast / Django Messages -->
-    <div class="container-fluid px-lg-4 mt-3">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}success{% endif %} alert-dismissible fade show shadow-sm" role="alert">
-                    <div class="d-flex align-items-center gap-2">
-                        {% if message.tags == 'warning' or message.tags == 'error' %}
-                            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
-                        {% else %}
-                            <i class="bi bi-check-circle-fill fs-5"></i>
-                        {% endif %}
-                        <div>{{ message }}</div>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+              <li><a class="dropdown-item small" href="/admin/">Django Admin</a></li>
+              <li>
+                <form method="post" action="{% url 'logout' %}" class="px-2 m-0">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger w-100 py-1">Logout</button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn-officer-login btn-sm py-1 px-2 {% if request.resolver_match.url_name == 'login' %}active-login{% endif %}" style="height: 32px; font-size: 0.8rem;">
+            <i class="bi bi-shield-lock-fill text-warning"></i> Login
+          </a>
         {% endif %}
+      </div>
+
+      <!-- Mobile Hamburger Toggle Button -->
+      <div class="d-flex d-lg-none align-items-center gap-2 ms-auto">
+        {% if user.is_authenticated %}
+          <a href="{% url 'reading_add' %}" class="btn btn-success btn-sm py-1 px-2" title="Log Reading">
+            <i class="bi bi-plus-lg"></i>
+          </a>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn-officer-login btn-sm py-1 px-2" style="height: 34px; font-size: 0.78rem;" title="Officer Login">
+            <i class="bi bi-shield-lock-fill text-warning"></i> Login
+          </a>
+        {% endif %}
+        <button class="btn btn-outline-secondary btn-sm p-1 rounded-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileOffcanvas" aria-controls="mobileOffcanvas" aria-label="Open Mobile Navigation Menu" style="width: 38px; height: 38px;">
+          <i class="bi bi-list fs-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+<!-- 3. Mobile Offcanvas Navigation Drawer -->
+<div class="offcanvas offcanvas-end offcanvas-custom shadow" tabindex="-1" id="mobileOffcanvas" aria-labelledby="mobileOffcanvasLabel">
+  <div class="offcanvas-header border-bottom py-3">
+    <div class="d-flex align-items-center">
+      <div class="bg-dark text-white rounded-2 p-1 me-2 text-center" style="width: 30px; height: 30px;">
+        <i class="bi bi-triangle-half text-warning"></i>
+      </div>
+      <div>
+        <h6 class="offcanvas-title fw-bold mb-0" id="mobileOffcanvasLabel">LANDSLIDE EWS</h6>
+        <small class="text-muted" style="font-size: 0.7rem;">NER INDIA COMMAND</small>
+      </div>
+    </div>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body p-3 d-flex flex-column justify-content-between">
+    <div>
+      <div class="p-2 bg-light border rounded-3 mb-3 small d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-broadcast text-danger me-1"></i>Network Status</span>
+        <span class="badge bg-success-subtle text-success border border-success-subtle">ONLINE</span>
+      </div>
+
+      <nav class="nav flex-column mb-3">
+        <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+          <i class="bi bi-speedometer2 text-primary"></i> Dashboard
+        </a>
+        <a class="nav-link {% if 'location' in request.resolver_match.url_name or request.resolver_match.url_name == 'reading_add' %}active{% endif %}" href="{% url 'location_list' %}">
+          <i class="bi bi-geo-alt-fill text-danger"></i> Stations
+        </a>
+        <a class="nav-link {% if 'alert' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'alert_list' %}">
+          <i class="bi bi-bell-fill text-warning"></i> Early Warnings
+          <span class="badge bg-danger rounded-pill ms-auto px-2">LIVE</span>
+        </a>
+        <a class="nav-link {% if 'prediction' in request.resolver_match.url_name or 'api_' in request.resolver_match.url_name or request.resolver_match.url_name == 'export_readings_csv' %}active{% endif %}" href="{% url 'prediction_list' %}">
+          <i class="bi bi-graph-up text-info"></i> Risk Feed
+        </a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'risk_calculator' %}active{% endif %}" href="{% url 'risk_calculator' %}">
+          <i class="bi bi-calculator text-success"></i> Risk Simulator
+        </a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'model_metrics' %}active{% endif %}" href="{% url 'model_metrics' %}">
+          <i class="bi bi-cpu-fill text-primary"></i> AI Model
+        </a>
+        <a class="nav-link {% if 'incident' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'incident_list' %}">
+          <i class="bi bi-clock-history text-secondary"></i> Incident Archive
+        </a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">
+          <i class="bi bi-info-circle text-muted"></i> Technical Spec
+        </a>
+      </nav>
+
+      <div class="border-top pt-3 mb-3">
+        <a href="{% url 'export_alerts_csv' %}" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+          <i class="bi bi-download me-1"></i> Export Alerts (CSV)
+        </a>
+        <a href="{% url 'export_readings_csv' %}" class="btn btn-outline-secondary btn-sm w-100">
+          <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Telemetry (CSV)
+        </a>
+      </div>
     </div>
 
-    <!-- Main Page Content Block -->
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+    <!-- Mobile Drawer Footer & Contacts -->
+    <div class="border-top pt-3">
+      <div class="small mb-2">
+        <div class="text-muted mb-1">Emergency Helpline:</div>
+        <a href="tel:1077" class="fw-bold text-danger text-decoration-none d-block">
+          <i class="bi bi-telephone-fill me-1"></i> 1077 (Toll-Free NDMA)
+        </a>
+        <a href="mailto:controlroom-ner@disaster.gov.in" class="text-secondary text-decoration-none d-block mt-1">
+          <i class="bi bi-envelope-fill me-1"></i> controlroom-ner@disaster.gov.in
+        </a>
+      </div>
 
-    <!-- Footer -->
-    <footer class="pt-5 pb-4 mt-5">
-        <div class="container-fluid px-lg-4">
-            <div class="row g-4 mb-4">
-                <div class="col-lg-4 col-md-6">
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <div class="bg-primary text-white p-2 rounded-2">
-                            <i class="bi bi-shield-check fs-5"></i>
-                        </div>
-                        <h5 class="text-white mb-0 fw-bold">NER Landslide EWS</h5>
-                    </div>
-                    <p class="small text-white-50">
-                        An explainable artificial intelligence early warning and slope risk monitoring system covering 12 vulnerable highway corridors and urban slopes across the 8 North Eastern States of India.
-                    </p>
-                    <div class="p-2 bg-dark rounded border border-secondary border-opacity-25 small text-white-50">
-                        <i class="bi bi-info-circle text-info me-1"></i>
-                        <strong>Monsoon Focus:</strong> Intense precipitation season (June–September) peak vigilance protocol active.
-                    </div>
-                </div>
-
-                <div class="col-lg-2 col-md-6">
-                    <h6 class="text-white fw-bold mb-3 text-uppercase fs-7">Monitored States</h6>
-                    <ul class="list-unstyled small text-white-50 mb-0">
-                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Arunachal Pradesh</li>
-                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Assam (Dima Hasao/Ghy)</li>
-                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Manipur (Ukhrul)</li>
-                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Meghalaya (NH-6/Dawki)</li>
-                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Mizoram (Hunthar Veng)</li>
-                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Nagaland (Kohima NH-29)</li>
-                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Sikkim (NH-10/Gangtok)</li>
-                        <li><i class="bi bi-chevron-right me-1 text-primary"></i> Tripura (Agartala)</li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <h6 class="text-white fw-bold mb-3 text-uppercase fs-7">Agency Workflow Roles</h6>
-                    <ul class="list-unstyled small text-white-50">
-                        <li class="mb-1"><strong>IMD:</strong> Rainfall telemetry & heavy precipitation forecasts</li>
-                        <li class="mb-1"><strong>GSI:</strong> Nodal geological hazard mapping & slope inventory</li>
-                        <li class="mb-1"><strong>NDMA / SDMA:</strong> National & State disaster policy coordination</li>
-                        <li class="mb-1"><strong>DDMA:</strong> District response authority & alert actions</li>
-                        <li class="mb-1"><strong>NDRF / SDRF:</strong> Immediate search, rescue & evacuation</li>
-                        <li class="mb-1"><strong>BRO / NHIDCL:</strong> Highway clearance & arterial traffic restoration</li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <h6 class="text-white fw-bold mb-3 text-uppercase fs-7">Emergency Reference</h6>
-                    <div class="card bg-danger bg-opacity-25 border-danger border-opacity-50 text-white p-3 mb-3">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <i class="bi bi-telephone-outbound-fill fs-4 text-danger"></i>
-                            <div>
-                                <span class="d-block small text-light">Emergency Relief Hotline</span>
-                                <strong class="fs-4 text-white">Dial 112</strong>
-                            </div>
-                        </div>
-                        <small class="text-white-75">Toll-free 24x7 all-India emergency response support service.</small>
-                    </div>
-                    <div class="small text-white-50">
-                        <p class="mb-1"><i class="bi bi-check2-circle text-success me-1"></i> Explainable AI formula: <code>Rainfall (40) + Soil Moisture (25) + Slope (20) + Vibration (15)</code></p>
-                    </div>
-                </div>
-            </div>
-
-            <hr class="border-secondary opacity-25">
-
-            <div class="d-flex justify-content-between align-items-center flex-wrap small text-white-50 gap-2">
-                <div>
-                    &copy; {% now "Y" %} North Eastern Region Landslide Risk Early Warning System. Developed for Public Safety & Academic Viva.
-                </div>
-                <div>
-                    Timezone: <strong>IST (Asia/Kolkata)</strong> | Built with <strong>Django 5/6</strong>, <strong>Bootstrap 5</strong>, <strong>Leaflet GIS</strong> & <strong>Chart.js</strong>
-                </div>
-            </div>
+      {% if user.is_authenticated %}
+        <div class="d-flex gap-2 mt-3">
+          <a href="/admin/" class="btn btn-outline-dark btn-sm flex-grow-1">Django Admin</a>
+          <form method="post" action="{% url 'logout' %}" class="m-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
+          </form>
         </div>
-    </footer>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-dark btn-sm w-100 mt-2">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Officer Login
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
 
-    <!-- Bootstrap 5.3 Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<!-- 4. Main Content Wrapper -->
+<main class="flex-grow-1">
+  <div class="container-fluid py-3">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show card-modern mb-3 d-flex align-items-center py-2 px-3" role="alert">
+        <i class="bi {% if message.tags == 'error' or message.tags == 'danger' %}bi-exclamation-octagon-fill text-danger{% elif message.tags == 'warning' %}bi-exclamation-triangle-fill text-warning{% else %}bi-check-circle-fill text-success{% endif %} fs-5 me-2"></i>
+        <div class="flex-grow-1 small fw-medium">{{ message }}</div>
+        <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
 
-    {% block extra_scripts %}{% endblock %}
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+<!-- 5. Comprehensive Professional Footer -->
+<footer>
+  <div class="container-fluid">
+    <div class="row g-4 mb-4">
+      
+      <!-- Col 1: Project Identity -->
+      <div class="col-lg-4 col-md-6">
+        <div class="d-flex align-items-center mb-2">
+          <div class="bg-success text-white rounded-2 p-1 me-2 text-center" style="width: 28px; height: 28px;">
+            <i class="bi bi-triangle-half"></i>
+          </div>
+          <span class="fw-bold text-white fs-6">LANDSLIDE EWS <span class="text-success">NER</span></span>
+        </div>
+        <p class="small text-secondary mb-3" style="line-height: 1.6;">
+          Autonomous AI &amp; IoT geotechnical disaster early warning network designed for India's 8 North-Eastern states: Arunachal Pradesh, Assam, Manipur, Meghalaya, Mizoram, Nagaland, Sikkim, and Tripura.
+        </p>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-circle-fill me-1" style="font-size:0.5rem;"></i>Server Online</span>
+          <span class="badge bg-secondary-subtle text-light border border-secondary">v2.4 Academic Edition</span>
+        </div>
+      </div>
+
+      <!-- Col 2: Navigation Links -->
+      <div class="col-lg-2 col-md-6 col-6">
+        <div class="footer-heading">Surveillance</div>
+        <ul class="list-unstyled small mb-0 d-flex flex-column gap-2">
+          <li><a href="{% url 'dashboard' %}"><i class="bi bi-chevron-right me-1 text-success"></i>Dashboard</a></li>
+          <li><a href="{% url 'location_list' %}"><i class="bi bi-chevron-right me-1 text-success"></i>Stations Grid</a></li>
+          <li><a href="{% url 'alert_list' %}"><i class="bi bi-chevron-right me-1 text-success"></i>Active Warnings</a></li>
+          <li><a href="{% url 'prediction_list' %}"><i class="bi bi-chevron-right me-1 text-success"></i>Telemetry Feed</a></li>
+          <li><a href="{% url 'incident_list' %}"><i class="bi bi-chevron-right me-1 text-success"></i>Landslide Archive</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: AI & Standards -->
+      <div class="col-lg-2 col-md-6 col-6">
+        <div class="footer-heading">AI &amp; Standards</div>
+        <ul class="list-unstyled small mb-0 d-flex flex-column gap-2">
+          <li><a href="{% url 'risk_calculator' %}"><i class="bi bi-chevron-right me-1 text-success"></i>Risk Simulator</a></li>
+          <li><a href="{% url 'model_metrics' %}"><i class="bi bi-chevron-right me-1 text-success"></i>Random Forest (120 Trees)</a></li>
+          <li><a href="{% url 'about' %}"><i class="bi bi-chevron-right me-1 text-success"></i>Caine's Model</a></li>
+          <li><a href="{% url 'api_locations' %}" target="_blank"><i class="bi bi-chevron-right me-1 text-success"></i>REST API (JSON)</a></li>
+          <li><a href="https://ndma.gov.in" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right me-1"></i>NDMA India</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 4: Emergency Contacts (Clickable Phone & Email) -->
+      <div class="col-lg-4 col-md-6">
+        <div class="footer-heading text-warning"><i class="bi bi-shield-fill-exclamation me-1"></i>Emergency Dispatch Desk</div>
+        <div class="p-3 rounded-3" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08);">
+          <div class="mb-2">
+            <small class="text-secondary d-block">National Disaster Helpline (Toll-Free):</small>
+            <a href="tel:1077" class="fw-bold fs-5 text-warning text-decoration-none">
+              <i class="bi bi-telephone-fill me-1"></i>1077
+            </a>
+          </div>
+          <div class="mb-2">
+            <small class="text-secondary d-block">NER State Emergency Operations Centre (SEOC):</small>
+            <a href="tel:+913612237000" class="fw-semibold text-white text-decoration-none">
+              <i class="bi bi-telephone me-1"></i>+91 (0361) 2237000
+            </a>
+          </div>
+          <div>
+            <small class="text-secondary d-block">Central Monitoring Desk Email:</small>
+            <a href="mailto:controlroom-ner@disaster.gov.in" class="fw-semibold text-info text-decoration-none">
+              <i class="bi bi-envelope-at-fill me-1"></i>controlroom-ner@disaster.gov.in
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Copyright Strip -->
+    <div class="border-top border-secondary-subtle pt-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 small text-secondary">
+      <div>
+        &copy; {% now "Y" %} National Landslide Early Warning Network (NER Region, India). Academic Engineering Submission.
+      </div>
+      <div class="d-flex gap-3">
+        <a href="{% url 'about' %}">Methodology</a>
+        <a href="{% url 'export_alerts_csv' %}">Download Data</a>
+        <a href="/admin/">Officer Portal</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Live IST Clock with zero lag
+function updateClock() {
+  const now = new Date();
+  const options = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+  const clockEl = document.getElementById('liveClock');
+  if (clockEl) {
+    clockEl.innerText = 'IST ' + now.toLocaleTimeString('en-GB', options);
+  }
+}
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

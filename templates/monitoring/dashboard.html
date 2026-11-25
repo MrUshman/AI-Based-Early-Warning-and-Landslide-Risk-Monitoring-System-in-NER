@@ -1,323 +1,435 @@
-{% extends 'monitoring/base.html' %}
+{% extends "monitoring/base.html" %}
+{% block title %}Regional Command Center | Landslide EWS NER{% endblock %}
+{% block meta_description %}Live GIS geospatial surveillance and AI risk prediction for landslide-prone mountain corridors across 8 North-Eastern states in India.{% endblock %}
 
-{% block title %}Dashboard | AI-Based Landslide Risk Monitoring System in NER{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-lg-4 py-3">
+<!-- Executive Action Bar & Live State Indicator -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 pb-2 border-bottom">
+  <div>
+    <div class="d-flex align-items-center gap-2">
+      <h3 class="fw-bold mb-0 text-dark">Regional Geotechnical Command Center</h3>
+      <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 small">
+        <i class="bi bi-circle-fill me-1" style="font-size: 0.55rem;"></i>Network Active
+      </span>
+    </div>
+    <p class="text-muted small mb-0">Autonomous monitoring across 12 high-vulnerability Himalayan &amp; North-East mountain transport arteries.</p>
+  </div>
 
-    <!-- Hero Title & Context Banner -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+  <div class="mt-3 mt-md-0 d-flex align-items-center gap-2 flex-wrap">
+    <div class="btn-group btn-group-sm">
+      <a href="{% url 'risk_calculator' %}" class="btn btn-outline-success">
+        <i class="bi bi-sliders me-1"></i> Live Simulator
+      </a>
+      <a href="{% url 'model_metrics' %}" class="btn btn-outline-primary">
+        <i class="bi bi-cpu me-1"></i> Model Metrics
+      </a>
+      <a href="{% url 'export_alerts_csv' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export Alerts
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Key Telemetry KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card card-modern p-3 h-100">
+      <div class="d-flex align-items-center justify-content-between">
         <div>
-            <h1 class="h3 fw-bold mb-1 text-dark">
-                <i class="bi bi-activity text-primary me-2"></i>Real-Time Slope Risk Monitoring Dashboard
-            </h1>
-            <p class="text-muted mb-0">
-                Continuous hazard index across 12 designated landslide-prone slopes in the 8 North Eastern States of India.
-            </p>
+          <span class="text-muted small fw-semibold text-uppercase" style="font-size:0.72rem;">Active Stations</span>
+          <h2 class="fw-bold mb-0 mt-1 text-dark">{{ total_locations }}</h2>
+          <small class="text-success"><i class="bi bi-check2-circle me-1"></i>8 NER States Online</small>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <a href="{% url 'locations_list' %}" class="btn btn-outline-primary btn-sm">
-                <i class="bi bi-list-ul me-1"></i> View All 12 Slopes
-            </a>
-            {% if user.is_authenticated %}
-            <a href="{% url 'reading_add' %}" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-lg me-1"></i> Record New Reading
-            </a>
-            {% endif %}
+        <div class="stat-icon-wrapper bg-primary-subtle text-primary">
+          <i class="bi bi-geo-alt-fill"></i>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- 4-Level Summary Strip (Page 14 Wireframe) -->
-    <div class="row g-3 mb-4">
-        <!-- Critical Counter -->
-        <div class="col-6 col-md-3">
-            <div class="card card-stat border-start border-4 border-critical p-3 bg-white h-100">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="text-uppercase text-danger fw-bold fs-7" style="letter-spacing: 0.05em;">Critical (75-100)</span>
-                        <h2 class="display-6 fw-bold text-critical my-1">{{ critical_count }}</h2>
-                        <small class="text-muted"><i class="bi bi-exclamation-octagon-fill text-danger me-1"></i>Immediate closure/action</small>
-                    </div>
-                    <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
-                        <i class="bi bi-exclamation-octagon-fill fs-3"></i>
-                    </div>
-                </div>
-            </div>
+  <div class="col-6 col-lg-3">
+    <div class="card card-modern p-3 h-100">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase" style="font-size:0.72rem;">Field Readings</span>
+          <h2 class="fw-bold mb-0 mt-1 text-dark">{{ total_readings }}</h2>
+          <small class="text-muted"><i class="bi bi-database me-1"></i>Historical Telemetry</small>
         </div>
-
-        <!-- High Counter -->
-        <div class="col-6 col-md-3">
-            <div class="card card-stat border-start border-4 border-high p-3 bg-white h-100">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="text-uppercase text-high fw-bold fs-7" style="letter-spacing: 0.05em;">High (50-74)</span>
-                        <h2 class="display-6 fw-bold text-high my-1">{{ high_count }}</h2>
-                        <small class="text-muted"><i class="bi bi-exclamation-triangle-fill text-high me-1"></i>Traffic warning & patrol</small>
-                    </div>
-                    <div class="bg-warning bg-opacity-10 text-high p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
-                        <i class="bi bi-exclamation-triangle-fill fs-3"></i>
-                    </div>
-                </div>
-            </div>
+        <div class="stat-icon-wrapper bg-info-subtle text-info">
+          <i class="bi bi-activity"></i>
         </div>
-
-        <!-- Moderate Counter -->
-        <div class="col-6 col-md-3">
-            <div class="card card-stat border-start border-4 border-moderate p-3 bg-white h-100">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="text-uppercase text-moderate fw-bold fs-7" style="letter-spacing: 0.05em;">Moderate (25-49)</span>
-                        <h2 class="display-6 fw-bold text-moderate my-1">{{ moderate_count }}</h2>
-                        <small class="text-muted"><i class="bi bi-eye-fill text-moderate me-1"></i>Increase reading cycle</small>
-                    </div>
-                    <div class="bg-warning bg-opacity-10 text-moderate p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
-                        <i class="bi bi-eye-fill fs-3"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Low Counter -->
-        <div class="col-6 col-md-3">
-            <div class="card card-stat border-start border-4 border-low p-3 bg-white h-100">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="text-uppercase text-low fw-bold fs-7" style="letter-spacing: 0.05em;">Low (0-24)</span>
-                        <h2 class="display-6 fw-bold text-low my-1">{{ low_count }}</h2>
-                        <small class="text-muted"><i class="bi bi-check-circle-fill text-low me-1"></i>Normal routine monitoring</small>
-                    </div>
-                    <div class="bg-success bg-opacity-10 text-low p-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
-                        <i class="bi bi-check-circle-fill fs-3"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Active Alerts Section (Top Placement for Safety, Page 14) -->
-    {% if active_alerts %}
-    <div class="mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="fw-bold mb-0 text-danger">
-                <i class="bi bi-bell-fill me-2"></i>Active Hazard Alerts Requiring District Attention
-            </h5>
-            <a href="{% url 'alerts_list' %}" class="small text-danger fw-semibold">View All Alerts ({{ global_active_alerts_count }}) &rarr;</a>
+  <div class="col-6 col-lg-3">
+    <div class="card card-modern p-3 h-100">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase" style="font-size:0.72rem;">Active Warnings</span>
+          <h2 class="fw-bold mb-0 mt-1 {% if active_alerts > 0 %}text-warning{% else %}text-muted{% endif %}">
+            {{ active_alerts }}
+          </h2>
+          <small class="text-muted"><i class="bi bi-broadcast me-1"></i>Broadcast Pending</small>
         </div>
-        <div class="row g-3">
-            {% for alert in active_alerts %}
-            <div class="col-12 col-lg-6">
-                <div class="card border-0 shadow-sm border-start border-4 {% if alert.level == 'CRITICAL' %}border-critical bg-danger bg-opacity-10{% else %}border-high bg-warning bg-opacity-10{% endif %} p-3">
-                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                        <div>
-                            <span class="badge-risk {% if alert.level == 'CRITICAL' %}bg-critical{% else %}bg-high{% endif %}">
-                                <i class="bi {% if alert.level == 'CRITICAL' %}bi-exclamation-octagon-fill{% else %}bi-exclamation-triangle-fill{% endif %}"></i>
-                                {{ alert.level }} ALERT &bull; {{ alert.prediction.total_score|floatformat:1 }}/100
-                            </span>
-                            <h5 class="fw-bold mt-2 mb-0 text-dark">{{ alert.location.name }}</h5>
-                            <small class="text-muted"><i class="bi bi-geo-alt"></i> {{ alert.location.district }}, {{ alert.location.state }}</small>
-                        </div>
-                        <span class="badge bg-white text-dark border">
-                            <i class="bi bi-clock me-1"></i>{{ alert.created_at|date:"d M, H:i" }} IST
-                        </span>
+        <div class="stat-icon-wrapper bg-warning-subtle text-warning">
+          <i class="bi bi-bell-fill"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-lg-3">
+    <div class="card card-modern p-3 h-100">
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="text-muted small fw-semibold text-uppercase" style="font-size:0.72rem;">Critical Hazard Sites</span>
+          <h2 class="fw-bold mb-0 mt-1 text-danger">
+            {% if critical_sites > 0 %}<span class="pulse-danger"></span>{% endif %}{{ critical_sites }}
+          </h2>
+          <small class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>Immediate SOP Alert</small>
+        </div>
+        <div class="stat-icon-wrapper bg-danger-subtle text-danger">
+          <i class="bi bi-shield-fill-x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GIS Surveillance Map with Layer Switcher & Filters -->
+<div class="card card-modern mb-4 overflow-hidden">
+  <div class="card-header bg-white py-2 px-3 d-flex flex-wrap justify-content-between align-items-center border-bottom gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-map-fill text-success fs-5"></i>
+      <h6 class="fw-bold mb-0 text-dark">Interactive Geospatial GIS Surveillance Map</h6>
+      <span class="badge bg-light text-muted border small d-none d-md-inline">Layer: Topographic / Street</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <div class="btn-group btn-group-sm">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="filterMap('all')">All Sites</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="filterMap('Critical')">Critical Only</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetMapView()">Reset View</button>
+      </div>
+      <div class="d-none d-lg-flex align-items-center gap-1 small ms-2">
+        <span class="badge badge-low px-2 py-1">Low</span>
+        <span class="badge badge-moderate px-2 py-1">Moderate</span>
+        <span class="badge badge-high px-2 py-1">High</span>
+        <span class="badge badge-critical px-2 py-1">Critical</span>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div id="nerMap" style="height: 460px; width: 100%;"></div>
+  </div>
+</div>
+
+<!-- Analytics Charts Row -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-5">
+    <div class="card card-modern p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Risk Tier Breakdown</h6>
+        <span class="badge bg-light text-muted border small">Current Network</span>
+      </div>
+      <div style="position: relative; height: 240px;">
+        <canvas id="levelChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card card-modern p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-bar-chart-fill text-success me-2"></i>Station Coverage by NER State</h6>
+        <span class="badge bg-light text-muted border small">8 States</span>
+      </div>
+      <div style="position: relative; height: 240px;">
+        <canvas id="stateChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Predictions Feed & Emergency Broadcasts -->
+<div class="row g-4">
+  <!-- Table: Stations & Risk Evaluation -->
+  <div class="col-lg-7">
+    <div class="card card-modern p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-cpu-fill text-primary me-2"></i>Live Machine Learning Inferences</h6>
+        <a href="{% url 'location_list' %}" class="small text-decoration-none">All Stations &rarr;</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light text-uppercase" style="font-size: 0.72rem;">
+            <tr>
+              <th>Station / Corridor</th>
+              <th>State</th>
+              <th>Risk Score</th>
+              <th>Hazard Status</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in latest_predictions %}
+              <tr>
+                <td>
+                  <a href="{% url 'location_detail' p.location.pk %}" class="fw-bold text-dark text-decoration-none">
+                    {{ p.location.name }}
+                  </a>
+                  <div class="text-muted" style="font-size: 0.75rem;">{{ p.location.district }} · {{ p.location.slope_angle }}° Slope</div>
+                </td>
+                <td><span class="badge bg-light text-dark border">{{ p.location.state }}</span></td>
+                <td>
+                  <div class="d-flex align-items-center gap-1">
+                    <span class="fw-bold">{{ p.risk_score|floatformat:0 }}</span>
+                    <div class="progress flex-grow-1" style="height: 5px; width: 50px;">
+                      <div class="progress-bar {% if p.risk_level == 'Critical' %}bg-danger{% elif p.risk_level == 'High' %}bg-warning{% elif p.risk_level == 'Moderate' %}bg-info{% else %}bg-success{% endif %}"
+                           style="width: {{ p.risk_score }}%"></div>
                     </div>
-                    <p class="small text-dark mb-3">{{ alert.message }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="small text-muted">
-                            Status: <strong class="text-uppercase {% if alert.status == 'ACKNOWLEDGED' %}text-primary{% else %}text-danger{% endif %}">{{ alert.status }}</strong>
-                            {% if alert.acknowledged_by %}by {{ alert.acknowledged_by.username }}{% endif %}
-                        </span>
-                        <a href="{% url 'alert_detail' alert.pk %}" class="btn btn-sm btn-outline-dark fw-semibold">
-                            Full Alert Action Dossier <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge {% if p.risk_level == 'Critical' %}badge-critical{% elif p.risk_level == 'High' %}badge-high{% elif p.risk_level == 'Moderate' %}badge-moderate{% else %}badge-low{% endif %} px-2 py-1">
+                    {{ p.risk_level }}
+                  </span>
+                </td>
+                <td>
+                  <a href="{% url 'location_detail' p.location.pk %}" class="btn btn-outline-secondary btn-sm py-0 px-2" title="Inspect">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="text-center py-4 text-muted">No telemetry logged yet.</td></tr>
             {% endfor %}
-        </div>
+          </tbody>
+        </table>
+      </div>
     </div>
-    {% endif %}
+  </div>
 
-    <!-- Interactive GIS Map Section -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div>
-                <h5 class="fw-bold mb-0 text-dark">
-                    <i class="bi bi-map-fill text-primary me-2"></i>North Eastern Region Slope Spatial Risk Map
-                </h5>
-                <small class="text-muted">Live geospatial status across Arunachal Pradesh, Assam, Manipur, Meghalaya, Mizoram, Nagaland, Sikkim & Tripura.</small>
+  <!-- Live Warning Feed -->
+  <div class="col-lg-5">
+    <div class="card card-modern p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-broadcast text-danger me-2"></i>Active Hazard Bulletins</h6>
+        <a href="{% url 'alert_list' %}" class="small text-decoration-none">Manage Alerts &rarr;</a>
+      </div>
+      <div class="list-group list-group-flush">
+        {% for a in recent_alerts %}
+          <div class="list-group-item px-0 py-2 border-bottom">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="fw-bold text-dark small">{{ a.location.name }}</span>
+              <span class="badge {% if a.severity == 'Critical' %}badge-critical{% else %}badge-high{% endif %}">
+                {{ a.severity }}
+              </span>
             </div>
-            <div class="d-flex align-items-center gap-2 small">
-                <span class="badge bg-critical"><i class="bi bi-circle-fill me-1"></i>Critical (75+)</span>
-                <span class="badge bg-high"><i class="bi bi-circle-fill me-1"></i>High (50-74)</span>
-                <span class="badge bg-moderate text-dark"><i class="bi bi-circle-fill me-1"></i>Moderate (25-49)</span>
-                <span class="badge bg-low"><i class="bi bi-circle-fill me-1"></i>Low (0-24)</span>
+            <p class="text-muted small mb-1" style="line-height: 1.4;">{{ a.message|truncatechars:100 }}</p>
+            <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 0.74rem;">
+              <span><i class="bi bi-clock me-1"></i>{{ a.issued_at|date:"d M, H:i" }}</span>
+              {% if a.is_acknowledged %}
+                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Acknowledged</span>
+              {% else %}
+                <span class="text-danger fw-bold"><i class="bi bi-exclamation-circle-fill me-1"></i>Unacknowledged</span>
+              {% endif %}
             </div>
-        </div>
-        <div class="card-body p-0">
-            <div id="ner-map"></div>
-        </div>
-        <div class="card-footer bg-light py-2 text-center small text-muted">
-            <i class="bi bi-info-circle me-1"></i> Click any slope marker on the map to view instant sensor parameters, explainable score breakdown, and access the full slope page.
-        </div>
-    </div>
-
-    <!-- Highest Risk Locations Grid (Page 14 Wireframe) -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h5 class="fw-bold mb-0 text-dark">
-                <i class="bi bi-graph-up-arrow text-danger me-2"></i>Priority Monitored Slopes (Sorted by Risk Index)
-            </h5>
-            <small class="text-muted">Ranked strictly by the transparent 4-factor scoring algorithm.</small>
-        </div>
-        <a href="{% url 'locations_list' %}" class="btn btn-sm btn-outline-secondary">
-            View All 12 Slopes <i class="bi bi-chevron-right"></i>
-        </a>
-    </div>
-
-    <div class="row g-3">
-        {% for loc in top_risk_locations %}
-        <div class="col-12 col-md-6 col-xl-4">
-            <div class="card card-location bg-white h-100 p-3">
-                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                    <div>
-                        <span class="badge-risk {{ loc.risk_badge_css }}">
-                            <i class="bi {{ loc.risk_icon }}"></i>
-                            {{ loc.current_risk_level }} &bull; {{ loc.current_risk_score|floatformat:1 }}/100
-                        </span>
-                        <h5 class="fw-bold mt-2 mb-1 text-dark">
-                            <a href="{% url 'location_detail' loc.pk %}" class="text-decoration-none text-dark hover-primary">
-                                {{ loc.name }}
-                            </a>
-                        </h5>
-                        <p class="small text-muted mb-0"><i class="bi bi-geo-alt"></i> {{ loc.district }}, <strong>{{ loc.state }}</strong></p>
-                    </div>
-                    <div class="text-end">
-                        <span class="badge bg-light text-secondary border">Slope: {{ loc.slope_angle|floatformat:0 }}°</span>
-                    </div>
-                </div>
-
-                <!-- Factor Breakdown Preview -->
-                {% with pred=loc.latest_prediction %}
-                {% if pred %}
-                <div class="bg-light p-2 rounded-3 my-2 small">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted">Rainfall (40):</span>
-                        <strong>{{ pred.rainfall_score|floatformat:1 }}/40</strong>
-                    </div>
-                    <div class="progress mb-2" style="height: 6px;">
-                        <div class="progress-bar bg-primary" role="progressbar" style="width: {% widthratio pred.rainfall_score 40 100 %}%;"></div>
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted">Soil Saturation (25):</span>
-                        <strong>{{ pred.soil_score|floatformat:1 }}/25</strong>
-                    </div>
-                    <div class="progress mb-2" style="height: 6px;">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: {% widthratio pred.soil_score 25 100 %}%;"></div>
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted">Slope Steepness (20):</span>
-                        <strong>{{ pred.slope_score|floatformat:1 }}/20</strong>
-                    </div>
-                    <div class="progress mb-2" style="height: 6px;">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: {% widthratio pred.slope_score 20 100 %}%;"></div>
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="text-muted">Ground Vibration (15):</span>
-                        <strong>{{ pred.vibration_score|floatformat:1 }}/15</strong>
-                    </div>
-                    <div class="progress" style="height: 6px;">
-                        <div class="progress-bar bg-secondary" role="progressbar" style="width: {% widthratio pred.vibration_score 15 100 %}%;"></div>
-                    </div>
-                </div>
-                {% else %}
-                <div class="alert alert-light border my-2 py-2 small text-muted">
-                    No readings logged yet for this slope.
-                </div>
-                {% endif %}
-                {% endwith %}
-
-                <div class="mt-auto pt-2 d-flex justify-content-between align-items-center">
-                    <small class="text-muted">
-                        <i class="bi bi-clock"></i>
-                        {% if loc.latest_reading %}
-                            Updated {{ loc.latest_reading.recorded_at|date:"d M, H:i" }} IST
-                        {% else %}
-                            Awaiting initial reading
-                        {% endif %}
-                    </small>
-                    <a href="{% url 'location_detail' loc.pk %}" class="btn btn-sm btn-outline-primary">
-                        Dossier <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
+          </div>
+        {% empty %}
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-shield-check fs-2 text-success d-block mb-2"></i>
+            All 12 monitoring corridors are within safe geotechnical parameters.
+          </div>
         {% endfor %}
+      </div>
     </div>
-
+  </div>
 </div>
 {% endblock %}
 
-{% block extra_scripts %}
+{% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Initialize Leaflet Map centered on North Eastern Region (approx lat 25.8, lng 93.0)
-        const map = L.map('ner-map').setView([25.85, 92.95], 7);
+let map, markers = [];
 
-        // OpenStreetMap Tile Layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 16,
-            attribution: '&copy; OpenStreetMap contributors | NER-LEWS'
-        }).addTo(map);
+document.addEventListener("DOMContentLoaded", function() {
+  const locations = {{ map_locations_json|safe }};
 
-        // Fetch location points from GeoJSON API
-        fetch("{% url 'api_locations_geojson' %}")
-            .then(res => res.json())
-            .then(data => {
-                const markersGroup = L.featureGroup();
+  // Base Map Layer 0: CartoDB Dark Matter (Tactical Dark Command Surveillance)
+  const darkMatterLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    maxZoom: 19,
+    attribution: '&copy; CartoDB &copy; OpenStreetMap'
+  });
 
-                data.locations.forEach(loc => {
-                    const color = loc.color;
+  // Base Map Layer 1: CartoDB Voyager (High contrast satellite / streets)
+  const voyagerLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    maxZoom: 19,
+    attribution: '&copy; CartoDB &copy; OpenStreetMap'
+  });
 
-                    // Custom Circle Marker with color code
-                    const marker = L.circleMarker([loc.latitude, loc.longitude], {
-                        radius: loc.risk_level === 'CRITICAL' ? 12 : 9,
-                        fillColor: color,
-                        color: '#FFFFFF',
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.9
-                    });
+  // Base Map Layer 2: Esri World Topographic (Official topographic elevation contours for Himalayas)
+  const esriTopoLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18,
+    attribution: '&copy; Esri &copy; USGS'
+  });
 
-                    // Popup Content
-                    const popupContent = `
-                        <div style="min-width: 220px; font-family: system-ui, sans-serif;">
-                            <div style="background-color: ${color}; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; margin-bottom: 6px;">
-                                ${loc.risk_level} RISK &bull; Score: ${loc.risk_score.toFixed(1)}/100
-                            </div>
-                            <strong style="font-size: 14px; display: block; color: #0F172A;">${loc.name}</strong>
-                            <div style="font-size: 12px; color: #475569; margin: 3px 0;">
-                                <i class="bi bi-geo-alt"></i> ${loc.district}, ${loc.state}
-                            </div>
-                            <div style="font-size: 12px; color: #475569; margin-bottom: 8px;">
-                                <strong>Slope:</strong> ${loc.slope_angle}° &bull; <strong>Soil:</strong> ${loc.soil_type}
-                            </div>
-                            <a href="${loc.detail_url}" class="btn btn-sm btn-primary text-white text-decoration-none" style="display: block; text-align: center; padding: 4px 8px; font-size: 12px; border-radius: 4px;">
-                                Open Full Slope Dossier
-                            </a>
-                        </div>
-                    `;
+  // Base Map Layer 3: Standard OpenStreetMap
+  const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors'
+  });
 
-                    marker.bindPopup(popupContent);
-                    marker.addTo(markersGroup);
-                });
+  // Initialize Map with Tactical Dark Grid as default
+  map = L.map('nerMap', {
+    center: [26.15, 92.90],
+    zoom: 7,
+    layers: [darkMatterLayer],
+    scrollWheelZoom: true
+  });
 
-                markersGroup.addTo(map);
-                map.fitBounds(markersGroup.getBounds().pad(0.15));
-            })
-            .catch(err => console.error("Error loading GIS markers:", err));
-    });
+  // Layer control switcher for Examiner presentation
+  const baseMaps = {
+    "🌙 Tactical Dark Grid": darkMatterLayer,
+    "🛰️ Satellite / Voyager": voyagerLayer,
+    "⛰️ Topographic Elevation": esriTopoLayer,
+    "🗺️ OpenStreetMap": osmLayer
+  };
+  L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+  // Render station pins with glowing borders
+  locations.forEach(function(loc) {
+    const isCrit = (loc.risk_level === 'Critical');
+    const marker = L.circleMarker([loc.lat, loc.lon], {
+      radius: isCrit ? 13 : 9,
+      fillColor: loc.color,
+      color: "#ffffff",
+      weight: isCrit ? 3 : 2,
+      opacity: 1,
+      fillOpacity: 0.95
+    }).addTo(map);
+
+    marker.locData = loc;
+    markers.push(marker);
+
+    const popupContent = `
+      <div style="min-width: 210px; font-family: inherit;">
+        <div style="font-weight: 700; font-size: 0.95rem; color: #f8fafc; margin-bottom: 2px;">${loc.name}</div>
+        <div style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 8px;">${loc.district}, ${loc.state}</div>
+        <div style="margin-bottom: 8px;">
+          <span style="background:${loc.color}; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 7px; border-radius:4px; box-shadow: 0 0 8px ${loc.color};">
+            ${loc.risk_level.toUpperCase()} HAZARD (${loc.risk_score}/100)
+          </span>
+        </div>
+        <div style="font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px;">
+          • Terrain Slope: <b>${loc.slope}°</b><br>
+          • Elevation: <b>${loc.elevation} m</b><br>
+          • Soil Profile: <b>${loc.soil}</b>
+        </div>
+        <a href="${loc.url}" class="btn btn-sm btn-primary w-100 py-1" style="font-size: 0.8rem;">
+          <i class="bi bi-cloud-arrow-down me-1"></i> Sync Weather &amp; Telemetry
+        </a>
+      </div>
+    `;
+    marker.bindPopup(popupContent);
+  });
+
+  // Automatically fit bounds to enclose all 12 NER stations on any screen
+  if (markers.length > 0) {
+    const group = new L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.12));
+  }
+
+  // Fix Leaflet tile loading inside Bootstrap cards (invalidateSize)
+  setTimeout(function() { map.invalidateSize(); }, 200);
+  setTimeout(function() { map.invalidateSize(); }, 600);
+  setTimeout(function() { map.invalidateSize(); }, 1200);
+  window.addEventListener('resize', function() { map.invalidateSize(); });
+
+  // Chart 1: Doughnut Chart for Risk Categories (Dark High-Pitch Glow)
+  const levelData = {{ level_counts_json|safe }};
+  new Chart(document.getElementById('levelChart'), {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(levelData),
+      datasets: [{
+        data: Object.values(levelData),
+        backgroundColor: ['#00ff88', '#fbbf24', '#f97316', '#ff2a55'],
+        borderWidth: 2,
+        borderColor: '#0d1527'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { 
+          position: 'bottom', 
+          labels: { 
+            boxWidth: 12, 
+            font: { size: 11, weight: 'bold' },
+            color: '#cbd5e1'
+          } 
+        }
+      },
+      cutout: '68%'
+    }
+  });
+
+  // Chart 2: Stations by State Bar Chart (Saturated Emerald)
+  new Chart(document.getElementById('stateChart'), {
+    type: 'bar',
+    data: {
+      labels: {{ state_labels_json|safe }},
+      datasets: [{
+        label: 'Stations',
+        data: {{ state_counts_json|safe }},
+        backgroundColor: '#00e5ff',
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { 
+          beginAtZero: true, 
+          ticks: { stepSize: 1, font: { size: 10 }, color: '#94a3b8' },
+          grid: { color: 'rgba(255, 255, 255, 0.08)' }
+        },
+        x: { 
+          ticks: { font: { size: 10 }, color: '#94a3b8' }, 
+          grid: { display: false } 
+        }
+      }
+    }
+  });
+});
+
+// Map Filter Functions
+function filterMap(level) {
+  markers.forEach(function(m) {
+    if (level === 'all' || m.locData.risk_level === level) {
+      if (!map.hasLayer(m)) {
+        m.addTo(map);
+      }
+    } else {
+      if (map.hasLayer(m)) {
+        map.removeLayer(m);
+      }
+    }
+  });
+}
+
+function resetMapView() {
+  filterMap('all');
+  if (markers.length > 0) {
+    const group = new L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.12));
+  }
+}
 </script>
 {% endblock %}

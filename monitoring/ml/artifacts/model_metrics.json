@@ -1,0 +1,75 @@
+{
+  "model_name": "RandomForestClassifier",
+  "n_estimators": 120,
+  "train_samples": 2400,
+  "test_samples": 600,
+  "accuracy": 79.83,
+  "confusion_matrix": [
+    [
+      165,
+      30,
+      0,
+      0
+    ],
+    [
+      27,
+      225,
+      11,
+      0
+    ],
+    [
+      0,
+      29,
+      59,
+      11
+    ],
+    [
+      0,
+      0,
+      13,
+      30
+    ]
+  ],
+  "classes": [
+    "Low",
+    "Moderate",
+    "High",
+    "Critical"
+  ],
+  "feature_importances": {
+    "rainfall_24h_mm": 25.99,
+    "slope_angle": 22.56,
+    "rainfall_72h_mm": 22.11,
+    "soil_moisture_pct": 15.61,
+    "ground_vibration": 6.35,
+    "elevation_m": 5.33,
+    "soil_type_code": 2.04
+  },
+  "classification_report": {
+    "Low": {
+      "precision": 85.9,
+      "recall": 84.6,
+      "f1_score": 85.3,
+      "support": 195.0
+    },
+    "Moderate": {
+      "precision": 79.2,
+      "recall": 85.6,
+      "f1_score": 82.3,
+      "support": 263.0
+    },
+    "High": {
+      "precision": 71.1,
+      "recall": 59.6,
+      "f1_score": 64.8,
+      "support": 99.0
+    },
+    "Critical": {
+      "precision": 73.2,
+      "recall": 69.8,
+      "f1_score": 71.4,
+      "support": 43.0
+    }
+  },
+  "macro_avg_f1": 76.0
+}

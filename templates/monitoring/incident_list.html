@@ -1,0 +1,67 @@
+{% extends "monitoring/base.html" %}
+{% block title %}Historical Landslide Incident Archive | Landslide EWS NER{% endblock %}
+{% block meta_description %}Documented historical landslide collapse events and road disruption records across North-East India transport corridors.{% endblock %}
+
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2 border-bottom">
+  <div>
+    <h2 class="fw-bold mb-1 d-flex align-items-center">
+      <i class="bi bi-clock-history text-secondary me-2"></i>Historical Landslide Incident Archive
+    </h2>
+    <p class="text-muted mb-0">Documented major slope collapse events along North-East transport arteries, used for model calibration.</p>
+  </div>
+  {% if user.is_authenticated %}
+    <div class="mt-3 mt-md-0">
+      <a class="btn btn-success btn-sm rounded-3" href="{% url 'incident_add' %}">
+        <i class="bi bi-plus-circle me-1"></i> Add Historical Incident
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<div class="card card-modern p-4 mb-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light small text-uppercase">
+        <tr>
+          <th>Date of Event</th>
+          <th>Location / Corridor</th>
+          <th>State</th>
+          <th>Prior Rainfall (mm)</th>
+          <th>Impact &amp; Infrastructure Damage Summary</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for i in incidents %}
+          <tr>
+            <td class="fw-semibold small"><i class="bi bi-calendar-event me-1 text-muted"></i>{{ i.occurred_on }}</td>
+            <td>
+              <b>{{ i.location_name }}</b>
+              {% if i.district %}<div class="text-muted small">{{ i.district }}</div>{% endif %}
+            </td>
+            <td><span class="badge bg-light text-dark border">{{ i.state }}</span></td>
+            <td>
+              {% if i.rainfall_before_mm %}
+                <span class="badge bg-info-subtle text-info border border-info-subtle">{{ i.rainfall_before_mm }} mm</span>
+              {% else %}
+                <span class="text-muted">-</span>
+              {% endif %}
+            </td>
+            <td class="small text-secondary">{{ i.damage_summary|default:i.description }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="text-center py-4 text-muted">No historical incidents recorded.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card card-modern p-3 bg-light border-0">
+  <div class="d-flex align-items-center text-muted small">
+    <i class="bi bi-info-circle fs-5 me-2 text-primary"></i>
+    <span>These historical records calibrate the Random Forest algorithm against extreme precipitation events, including NH-10 Teesta riverbank slides and Haflong railway collapses.</span>
+  </div>
+</div>
+{% endblock %}

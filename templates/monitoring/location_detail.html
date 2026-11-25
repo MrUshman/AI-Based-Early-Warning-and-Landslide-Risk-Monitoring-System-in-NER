@@ -38,8 +38,11 @@
   <!-- Station Map -->
   <div class="col-lg-5">
     <div class="card card-modern p-3 h-100">
-      <h6 class="fw-bold text-dark mb-2"><i class="bi bi-pin-map text-danger me-1"></i>Station GIS Coordinates</h6>
-      <div id="stationMap" style="height: 280px; border-radius: 8px;" class="border"></div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="fw-bold text-dark mb-0"><i class="bi bi-pin-map text-danger me-1"></i>Station GIS Coordinates</h6>
+        <span class="badge bg-light text-muted border small">Himalayan Topography</span>
+      </div>
+      <div id="stationMap" style="height: 320px; border-radius: 8px;" class="border"></div>
     </div>
   </div>
 
@@ -201,24 +204,86 @@
 document.addEventListener("DOMContentLoaded", function() {
   const point = {{ map_point_json|safe }};
 
-  // 1. Station Mini Map (Tactical Dark Grid)
-  const map = L.map('stationMap', { scrollWheelZoom: false }).setView([point.lat, point.lon], 11);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  // 1. Station High-Definition GIS Mini-Map (Default: Esri Himalayan Topographic Relief)
+  const esriTopoLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18,
+    attribution: '&copy; Esri, USGS, GSI'
+  });
+
+  const esriSatelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18,
+    attribution: '&copy; Esri, Maxar'
+  });
+  const esriLabelsLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 18
+  });
+  const satelliteHybrid = L.layerGroup([esriSatelliteLayer, esriLabelsLayer]);
+
+  const voyagerLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     subdomains: 'abcd',
     maxZoom: 19,
     attribution: '&copy; CartoDB &copy; OpenStreetMap'
-  }).addTo(map);
+  });
 
-  L.circleMarker([point.lat, point.lon], {
-    radius: 12,
+  const darkMatterLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd',
+    maxZoom: 19,
+    attribution: '&copy; CartoDB &copy; OpenStreetMap'
+  });
+
+  const map = L.map('stationMap', { 
+    center: [point.lat, point.lon], 
+    zoom: 12,
+    layers: [esriTopoLayer],
+    scrollWheelZoom: true 
+  });
+
+  const baseMaps = {
+    "⛰️ Topographic": esriTopoLayer,
+    "🛰️ Satellite": satelliteHybrid,
+    "🗺️ Voyager Streets": voyagerLayer,
+    "🌙 Tactical Dark": darkMatterLayer
+  };
+  L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+  const marker = L.circleMarker([point.lat, point.lon], {
+    radius: 14,
     fillColor: point.color,
     color: '#ffffff',
     weight: 3,
+    opacity: 1,
     fillOpacity: 0.95
-  }).addTo(map).bindPopup(`<div style="color:#f8fafc;"><b>${point.name}</b><br>Slope: ${point.slope}° | Elev: ${point.elevation}m<br>Status: <b>${point.risk_level}</b></div>`).openPopup();
+  }).addTo(map);
 
-  setTimeout(function() { map.invalidateSize(); }, 250);
-  setTimeout(function() { map.invalidateSize(); }, 800);
+  marker.bindTooltip(`
+    <div style="font-family: inherit;">
+      <b>${point.name}</b><br>
+      <span style="color: ${point.color}; font-weight: 700;">● ${point.risk_level.toUpperCase()} HAZARD</span>
+    </div>
+  `, {
+    direction: 'top',
+    offset: [0, -10],
+    className: 'station-map-tooltip'
+  });
+
+  marker.bindPopup(`
+    <div style="min-width: 200px; font-family: inherit;">
+      <b style="color:#f8fafc; font-size:1rem;">${point.name}</b><br>
+      <div class="mt-1 mb-2">
+        <span style="background:${point.color}; color:#fff; font-size:0.75rem; font-weight:700; padding:2px 7px; border-radius:4px;">
+          ${point.risk_level.toUpperCase()} HAZARD
+        </span>
+      </div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        • Slope: <b>${point.slope}°</b><br>
+        • Elevation: <b>${point.elevation} m</b>
+      </div>
+    </div>
+  `).openPopup();
+
+  setTimeout(function() { map.invalidateSize(); }, 200);
+  setTimeout(function() { map.invalidateSize(); }, 600);
+  setTimeout(function() { map.invalidateSize(); }, 1200);
   window.addEventListener('resize', function() { map.invalidateSize(); });
 
   // 2. Trend Chart (High Pitch Saturated Line Chart)

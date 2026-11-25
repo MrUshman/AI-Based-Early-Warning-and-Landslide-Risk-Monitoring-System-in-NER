@@ -633,7 +633,7 @@
       text-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
     }
 
-    /* Leaflet Dark Popup Styling */
+    /* Leaflet Dark Popup & Tooltip Styling */
     .leaflet-popup-content-wrapper {
       background: rgba(15, 23, 42, 0.96) !important;
       color: #f8fafc !important;
@@ -643,6 +643,57 @@
     }
     .leaflet-popup-tip {
       background: rgba(15, 23, 42, 0.96) !important;
+    }
+    .station-map-tooltip {
+      background: rgba(13, 21, 39, 0.96) !important;
+      color: #f8fafc !important;
+      border: 1px solid rgba(0, 229, 255, 0.5) !important;
+      border-radius: 8px !important;
+      font-size: 0.82rem !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7) !important;
+      padding: 6px 12px !important;
+      line-height: 1.4 !important;
+    }
+    .station-map-tooltip::before {
+      border-top-color: rgba(13, 21, 39, 0.96) !important;
+    }
+    .leaflet-container {
+      background: #0b1329 !important;
+      font-family: inherit !important;
+    }
+    .leaflet-tile {
+      max-width: none !important;
+      max-height: none !important;
+      filter: none !important;
+    }
+    .leaflet-control-layers {
+      background: rgba(13, 21, 39, 0.92) !important;
+      color: #f8fafc !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+      padding: 8px 12px !important;
+    }
+    .leaflet-control-layers-base label {
+      color: #e2e8f0 !important;
+      font-size: 0.82rem !important;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .leaflet-control-layers-base input[type="radio"] {
+      accent-color: #10b981;
+    }
+    .leaflet-bar a {
+      background-color: rgba(13, 21, 39, 0.92) !important;
+      color: #f8fafc !important;
+      border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+    .leaflet-bar a:hover {
+      background-color: #1e293b !important;
+      color: #38bdf8 !important;
     }
   </style>
   {% block extra_head %}{% endblock %}
